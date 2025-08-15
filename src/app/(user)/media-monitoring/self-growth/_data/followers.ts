@@ -1,0 +1,42 @@
+import { ChartProps } from '@/types/types';
+
+export const followersData: ChartProps = {
+  chartConfig: {
+    score: {
+      label: 'Score',
+      fill: 'var(--primary)',
+    },
+  },
+  data: [
+    { date: '2024-04-01', score: 222 },
+    { date: '2024-04-02', score: 97 },
+    { date: '2024-04-03', score: 167 },
+    { date: '2024-04-04', score: 242 },
+    { date: '2024-04-05', score: 373 },
+    { date: '2024-04-06', score: 301 },
+    { date: '2024-04-07', score: 245 },
+    { date: '2024-04-08', score: 409 },
+    { date: '2024-04-09', score: 59 },
+    { date: '2024-04-10', score: 261 },
+    { date: '2024-04-11', score: 327 },
+    { date: '2024-04-12', score: 292 },
+    { date: '2024-04-13', score: 342 },
+    { date: '2024-04-14', score: 137 },
+    { date: '2024-04-15', score: 120 },
+    { date: '2024-04-16', score: 138 },
+    { date: '2024-04-17', score: 446 },
+    { date: '2024-04-18', score: 364 },
+    { date: '2024-04-19', score: 243 },
+    { date: '2024-04-20', score: 89 },
+    { date: '2024-04-21', score: 137 },
+    { date: '2024-04-22', score: 224 },
+    { date: '2024-04-23', score: 138 },
+    { date: '2024-04-24', score: 387 },
+    { date: '2024-04-25', score: 215 },
+    { date: '2024-04-26', score: 75 },
+    { date: '2024-04-27', score: 383 },
+    { date: '2024-04-28', score: 122 },
+    { date: '2024-04-29', score: 315 },
+    { date: '2024-04-30', score: 454 },
+  ],
+};

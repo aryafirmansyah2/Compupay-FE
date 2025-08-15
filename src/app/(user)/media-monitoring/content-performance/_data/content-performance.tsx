@@ -1,0 +1,141 @@
+import { ContentPerformanceData } from '../type';
+
+export const deliveryStatusesData = [
+  { label: 'In Transit', value: 'In Transit' },
+  { label: 'Delivered', value: 'Delivered' },
+  { label: 'Processing', value: 'Processing' },
+  { label: 'Pending', value: 'Pending' },
+];
+
+export const contentPerformance: ContentPerformanceData[] = [
+  {
+    avatar: '/assets/provinsi/Gorontalo.png',
+    accountName: 'Diskom__Official',
+    platform: 'Instagram',
+    date: '2024-11-15T00:00:00Z',
+    caption:
+      '"Bersama kita wujudkan pelayanan publik yang cepat, tepat, dan transparan. Karena kemajuan daerah dimulai dari langkah kita bersama." ✅ #PelayananPublik #BersamaMaju',
+    likes: 5000,
+    comments: 150,
+    views: 10000,
+    shares: 3000,
+    saves: 302,
+  },
+  {
+    avatar: '/assets/provinsi/Gorontalo.png',
+    accountName: 'Diskom__Official',
+    platform: 'Instagram',
+    date: '2024-11-15T00:00:00Z',
+    caption:
+      '"Bersama kita wujudkan pelayanan publik yang cepat, tepat, dan transparan. Karena kemajuan daerah dimulai dari langkah kita bersama." ✅ #PelayananPublik #BersamaMaju',
+    likes: 5000,
+    comments: 150,
+    views: 10000,
+    shares: 3000,
+    saves: 302,
+  },
+  {
+    avatar: '/assets/provinsi/Gorontalo.png',
+    accountName: 'Diskom__Official',
+    platform: 'Instagram',
+    date: '2024-11-15T00:00:00Z',
+    caption:
+      '"Bersama kita wujudkan pelayanan publik yang cepat, tepat, dan transparan. Karena kemajuan daerah dimulai dari langkah kita bersama." ✅ #PelayananPublik #BersamaMaju',
+    likes: 5000,
+    comments: 150,
+    views: 10000,
+    shares: 3000,
+    saves: 302,
+  },
+  {
+    avatar: '/assets/provinsi/Gorontalo.png',
+    accountName: 'Diskom__Official',
+    platform: 'Instagram',
+    date: '2024-11-15T00:00:00Z',
+    caption:
+      '"Bersama kita wujudkan pelayanan publik yang cepat, tepat, dan transparan. Karena kemajuan daerah dimulai dari langkah kita bersama." ✅ #PelayananPublik #BersamaMaju',
+    likes: 5000,
+    comments: 150,
+    views: 10000,
+    shares: 3000,
+    saves: 302,
+  },
+  {
+    avatar: '/assets/provinsi/Gorontalo.png',
+    accountName: 'Diskom__Official',
+    platform: 'Instagram',
+    date: '2024-11-15T00:00:00Z',
+    caption:
+      '"Bersama kita wujudkan pelayanan publik yang cepat, tepat, dan transparan. Karena kemajuan daerah dimulai dari langkah kita bersama." ✅ #PelayananPublik #BersamaMaju',
+    likes: 5000,
+    comments: 150,
+    views: 10000,
+    shares: 3000,
+    saves: 302,
+  },
+  {
+    avatar: '/assets/provinsi/Gorontalo.png',
+    accountName: 'Diskom__Official',
+    platform: 'Instagram',
+    date: '2024-11-15T00:00:00Z',
+    caption:
+      '"Bersama kita wujudkan pelayanan publik yang cepat, tepat, dan transparan. Karena kemajuan daerah dimulai dari langkah kita bersama." ✅ #PelayananPublik #BersamaMaju',
+    likes: 5000,
+    comments: 150,
+    views: 10000,
+    shares: 3000,
+    saves: 302,
+  },
+  {
+    avatar: '/assets/provinsi/Gorontalo.png',
+    accountName: 'Diskom__Official',
+    platform: 'Instagram',
+    date: '2024-11-15T00:00:00Z',
+    caption:
+      '"Bersama kita wujudkan pelayanan publik yang cepat, tepat, dan transparan. Karena kemajuan daerah dimulai dari langkah kita bersama." ✅ #PelayananPublik #BersamaMaju',
+    likes: 5000,
+    comments: 150,
+    views: 10000,
+    shares: 3000,
+    saves: 302,
+  },
+  {
+    avatar: '/assets/provinsi/Gorontalo.png',
+    accountName: 'Diskom__Official',
+    platform: 'Instagram',
+    date: '2024-11-15T00:00:00Z',
+    caption:
+      '"Bersama kita wujudkan pelayanan publik yang cepat, tepat, dan transparan. Karena kemajuan daerah dimulai dari langkah kita bersama." ✅ #PelayananPublik #BersamaMaju',
+    likes: 5000,
+    comments: 150,
+    views: 10000,
+    shares: 3000,
+    saves: 302,
+  },
+  {
+    avatar: '/assets/provinsi/Gorontalo.png',
+    accountName: 'Diskom__Official',
+    platform: 'Instagram',
+    date: '2024-11-15T00:00:00Z',
+    caption:
+      '"Bersama kita wujudkan pelayanan publik yang cepat, tepat, dan transparan. Karena kemajuan daerah dimulai dari langkah kita bersama." ✅ #PelayananPublik #BersamaMaju',
+    likes: 5000,
+    comments: 150,
+    views: 10000,
+    shares: 3000,
+    saves: 302,
+  },
+  {
+    avatar: '/assets/provinsi/Gorontalo.png',
+    accountName: 'Diskom__Official',
+    platform: 'Instagram',
+    date: '2024-11-15T00:00:00Z',
+    caption:
+      '"Bersama kita wujudkan pelayanan publik yang cepat, tepat, dan transparan. Karena kemajuan daerah dimulai dari langkah kita bersama." ✅ #PelayananPublik #BersamaMaju',
+    likes: 5000,
+    comments: 150,
+    views: 10000,
+    shares: 3000,
+    saves: 302,
+  },
+];

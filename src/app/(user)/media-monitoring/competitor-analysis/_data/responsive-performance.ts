@@ -1,0 +1,17 @@
+import { ChartProps } from '@/types/types';
+
+export const responsiveDatas: ChartProps = {
+  chartConfig: {
+    value: {
+      label: 'Value',
+    },
+  },
+  data: [
+    { accountName: 'Dishub', value: 275, fill: 'var(--chart-1)' },
+    { accountName: 'Diskom', value: 200, fill: 'var(--chart-2)' },
+    { accountName: 'Dinsos', value: 187, fill: 'var(--chart-3)' },
+    { accountName: 'SatpolPP', value: 173, fill: 'var(--chart-4)' },
+    { accountName: 'Bupati', value: 90, fill: 'var(--chart-5)' },
+    { accountName: 'Dinkes', value: 90, fill: 'var(--chart-6)' },
+  ],
+};
