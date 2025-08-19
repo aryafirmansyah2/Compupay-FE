@@ -1,13 +1,14 @@
 'use client';
-import { OurCardV3 } from '@/components/custom/our-card';
+
 import React from 'react';
 
 import ProxyItem from './proxy-item';
 import { proxyFriendship } from '../_data/proxy-friendship';
+import { OurCardCarousel } from '@/components/custom/our-card';
 
 export default function ProxyOpposition() {
   return (
-    <OurCardV3
+    <OurCardCarousel
       title="Proxy Opposition"
       contentClassName="col-span-full md:col-span-1 "
       size={'lg'}

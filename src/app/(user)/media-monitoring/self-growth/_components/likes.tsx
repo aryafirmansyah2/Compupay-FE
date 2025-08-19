@@ -1,24 +1,15 @@
 'use client';
-import {
-  SelfGrowthActionsSelect,
-  SelfGrowthCard,
-  SelfGrowthCardActionsDropdown,
-} from '@/components/shared/self-growth/self-growth-card';
+
 import React from 'react';
 import { likesData } from '../_data/likes';
 import { OurBarChart } from '@/components/custom/our-chart';
 import { ChartTooltipContent } from '@/components/ui/chart';
+import { OurCard } from '@/components/custom/our-card';
 
 export default function Likes() {
   return (
-    <SelfGrowthCard
+    <OurCard
       title="Likes"
-      period="Last Month"
-      action={
-        <div className="flex items-center justify-start gap-4">
-          <SelfGrowthActionsSelect /> <SelfGrowthCardActionsDropdown />
-        </div>
-      }
       size="fill"
       className="col-span-full md:col-span-1"
       contentClassName="px-2 pb-4"
@@ -46,6 +37,6 @@ export default function Likes() {
           />
         }
       />
-    </SelfGrowthCard>
+    </OurCard>
   );
 }

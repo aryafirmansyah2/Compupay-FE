@@ -16,7 +16,6 @@ export default function FairPerformance() {
   return (
     <OurCard
       title="Fair Score Performance"
-      period="Last 30 days"
       className="col-span-full md:col-span-2"
     >
       {isMobile ? (

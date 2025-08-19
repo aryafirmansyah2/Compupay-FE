@@ -2,17 +2,22 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
 import { CardDescription, CardTitle } from '../ui/card';
-import { CalendarDatePicker } from '../ui/date-range-picker';
+import { TabItem } from '@/types/types';
+import { ReactNode } from 'react';
+export interface TabsUnderlinedProps {
+  title: string;
+  period?: string;
+  action?: ReactNode;
+  tabs: TabItem[]; // <-- bukan string lagi
+}
 
-export type TabItem = {
-  name: string;
-  value: string;
-  content: React.ReactNode; // <-- bukan string lagi
-};
-
-export default function TabsUnderlined({ tabs }: { tabs: TabItem[] }) {
+export default function TabsUnderlined({
+  title,
+  period,
+  action,
+  tabs,
+}: TabsUnderlinedProps) {
   return (
     <Tabs defaultValue={tabs[0]?.value} className="w-full flex flex-col gap-4">
       <TabsList className="w-full p-0 bg-background justify-start border-0 border-b rounded-none">
@@ -28,21 +33,11 @@ export default function TabsUnderlined({ tabs }: { tabs: TabItem[] }) {
       </TabsList>
       <div className="flex justify-between py-4">
         <div className="space-y-1">
-          <CardTitle className="text-xl">{'Competitor Analysis'}</CardTitle>
-          <CardDescription>{'Saturday, December 3, 2024'}</CardDescription>
-          {/* <CardTitle>{title}</CardTitle>
-                  {period && <CardDescription>{period}</CardDescription>} */}
+          <CardTitle className="text-xl">{title}</CardTitle>
+          {period && <CardDescription>{period}</CardDescription>}
         </div>
-        {/* {action} */}
-        <div className="flex gap-2 items-center">
-          <CalendarDatePicker
-            align="end"
-            date={{ from: new Date(), to: new Date() }}
-            onDateSelect={({ from, to }) => {}}
-            variant="outline"
-          />
-          <Button variant={'outline'}>Submit</Button>
-        </div>
+
+        <div className="flex gap-2 items-center">{action}</div>
       </div>
 
       {tabs.map((tab) => (

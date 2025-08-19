@@ -10,11 +10,7 @@ import CompetitorRankingCarousel from './competitor-ranking-corousel';
 
 export default function InteractionPerformance() {
   return (
-    <OurCard
-      title="Interaction"
-      period="Last Month"
-      className="col-span-full md:col-span-1 "
-    >
+    <OurCard title="Interaction" className="col-span-full md:col-span-1 ">
       <CompetitorRankingCarousel
         title="Ranking Interaction"
         description="List ranking interaction"

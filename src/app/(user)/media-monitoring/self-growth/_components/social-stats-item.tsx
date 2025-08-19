@@ -1,4 +1,4 @@
-import { PercentageChangeBadge } from '@/components/shared/self-growth/percentage-change-badge';
+import { PercentageChangeBadge } from '@/components/custom/our-badge';
 import { SocialStatsType } from '../type';
 import { formatNumberSocialMedia } from '@/lib/utils';
 

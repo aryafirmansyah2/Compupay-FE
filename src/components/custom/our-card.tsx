@@ -1,5 +1,6 @@
 'use client';
 import { cva, VariantProps } from 'class-variance-authority';
+import { VariantProps as ButtonVariantProps } from 'class-variance-authority';
 import React, { ComponentProps, ReactNode, useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '../ui/card';
 import { cn, formatCardValue } from '@/lib/utils';
@@ -20,6 +21,14 @@ import {
   CarouselContent,
   CarouselItem,
 } from '../ui/carousel';
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
 
 export const cardContentVariants = cva(
   'flex flex-col justify-between gap-y-6',
@@ -147,7 +156,7 @@ export function OurCardV2({
   );
 }
 
-interface OurCardV3Props extends ComponentProps<'div'> {
+interface OurCardCarouselProps extends ComponentProps<'div'> {
   title: string;
   period?: string;
   slides: ReactNode[];
@@ -157,98 +166,7 @@ interface OurCardV3Props extends ComponentProps<'div'> {
   loop?: boolean;
 }
 
-// export function OurCardV3({
-//   title,
-//   period,
-//   slides,
-//   contentClassName,
-//   size,
-//   showDots = true,
-//   loop = false,
-//   ...props
-// }: OurCardV3Props) {
-//   const [api, setApi] = useState<CarouselApi | null>(null);
-//   const [canPrev, setCanPrev] = useState(false);
-//   const [canNext, setCanNext] = useState(false);
-//   const [selectedIndex, setSelectedIndex] = useState(0);
-//   const [count, setCount] = useState(slides.length);
-
-//   useEffect(() => {
-//     if (!api) return;
-//     const onSelect = () => {
-//       setSelectedIndex(api.selectedScrollSnap());
-//       setCanPrev(api.canScrollPrev());
-//       setCanNext(api.canScrollNext());
-//       setCount(api.scrollSnapList().length);
-//     };
-//     onSelect();
-//     api.on('select', onSelect);
-//     api.on('reInit', onSelect);
-//     return () => {
-//       api.off('select', onSelect);
-//       api.off('reInit', onSelect);
-//     };
-//   }, [api]);
-
-//   return (
-//     <Card asChild {...props}>
-//       <article className="w-full flex flex-col justify-start ">
-//         <div className="flex justify-between p-6">
-//           <div className="space-y-1 min-w-0">
-//             <CardTitle className="truncate">{title}</CardTitle>
-//             {period && <CardDescription>{period}</CardDescription>}
-//           </div>
-//           <OurCardCarouselActions
-//             api={api}
-//             canPrev={canPrev}
-//             canNext={canNext}
-//           />
-//         </div>
-//         <CardContent
-//           className={cn(cardContentVariants({ size }), contentClassName)}
-//         >
-//           <div className="space-y-3 w-full">
-//             <Carousel
-//               setApi={setApi}
-//               opts={{ align: 'start', loop }}
-//               className="h-full w-full"
-//             >
-//               <CarouselContent>
-//                 {slides.map((slide, i) => (
-//                   <CarouselItem
-//                     key={`slide-${i}`}
-//                     className="basis-full bg-red-500 h-full items-start"
-//                   >
-//                     {React.cloneElement(slide as React.ReactElement, {
-//                       key: `slide-content-${i}`,
-//                     })}
-//                   </CarouselItem>
-//                 ))}
-//               </CarouselContent>
-//             </Carousel>
-//             {showDots && count > 1 && (
-//               <div className="flex items-center justify-center gap-2 pt-1">
-//                 {Array.from({ length: count }).map((_, i) => (
-//                   <button
-//                     key={`dot-${i}`}
-//                     className={cn(
-//                       'h-1.5 w-6 rounded-full bg-muted-foreground/30 transition-all',
-//                       i === selectedIndex && 'w-8 bg-foreground/70'
-//                     )}
-//                     aria-label={`Go to slide ${i + 1}`}
-//                     onClick={() => api?.scrollTo(i)}
-//                   />
-//                 ))}
-//               </div>
-//             )}
-//           </div>
-//         </CardContent>
-//       </article>
-//     </Card>
-//   );
-// }
-
-export function OurCardV3({
+export function OurCardCarousel({
   title,
   period,
   slides,
@@ -257,7 +175,7 @@ export function OurCardV3({
   showDots = true,
   loop = false,
   ...props
-}: OurCardV3Props) {
+}: OurCardCarouselProps) {
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
@@ -289,7 +207,7 @@ export function OurCardV3({
             <CardTitle className="truncate">{title}</CardTitle>
             {period && <CardDescription>{period}</CardDescription>}
           </div>
-          <OurCardCarouselActions
+          <OurCardActionsCarousel
             api={api}
             canPrev={canPrev}
             canNext={canNext}
@@ -339,13 +257,55 @@ export function OurCardV3({
   );
 }
 
+interface OurCardTabsdProps extends ComponentProps<'div'> {
+  title: string;
+  period?: string;
+  defaultValueTabs: string;
+  action?: ReactNode;
+  contentClassName?: string;
+  size?: VariantProps<typeof cardContentVariants>['size'];
+}
+
+export function OurCardTabs({
+  title,
+  period,
+  defaultValueTabs,
+  action,
+  children,
+  contentClassName,
+  size,
+  ...props
+}: OurCardTabsdProps) {
+  return (
+    <Card asChild {...props}>
+      <Tabs
+        defaultValue={defaultValueTabs}
+        className="w-full flex-col justify-start gap-6"
+      >
+        <div className="flex justify-between p-6">
+          <div className="space-y-1">
+            <CardTitle>{title}</CardTitle>
+            {period && <CardDescription>{period}</CardDescription>}
+          </div>
+          {action}
+        </div>
+        <CardContent
+          className={cn(cardContentVariants({ size }), contentClassName)}
+        >
+          {children}
+        </CardContent>
+      </Tabs>
+    </Card>
+  );
+}
+
 interface CarouselActionsProps {
   api: CarouselApi | null;
   canPrev: boolean;
   canNext: boolean;
 }
 
-export function OurCardCarouselActions({
+export function OurCardActionsCarousel({
   api,
   canPrev,
   canNext,
@@ -372,20 +332,36 @@ export function OurCardCarouselActions({
   );
 }
 
+interface OurCardActionsDropdownProps
+  extends ComponentProps<typeof DropdownMenu> {
+  children?: React.ReactNode;
+  icon?: IconType; // Dinamis: menerima ikon
+  label?: string; // Dinamis: menerima label untuk trigger
+  variant?: ButtonVariantProps<typeof buttonVariants>['variant'];
+  size?: ButtonVariantProps<typeof buttonVariants>['size'];
+  className?: string; // Dinamis: menerima className untuk kustomisasi
+}
+
 export function OurCardActionsDropdown({
   children,
+  icon: Icon = EllipsisVertical, // Default ikon jika tidak ada
+  label,
+  variant = 'ghost',
+  size = 'icon',
+  className = '',
   ...props
-}: ComponentProps<typeof DropdownMenu>) {
+}: OurCardActionsDropdownProps) {
   return (
     <DropdownMenu {...props}>
       <DropdownMenuTrigger
-        aria-label="More actions"
+        aria-label={label}
         className={cn(
           '-mt-2 -me-2',
-          buttonVariants({ variant: 'ghost', size: 'icon' })
+          buttonVariants({ variant: variant, size: size }),
+          className // Menambahkan className dinamis
         )}
       >
-        <EllipsisVertical className="h-4 w-4" />
+        {Icon && <Icon />} {label}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {children ? (
@@ -393,11 +369,70 @@ export function OurCardActionsDropdown({
         ) : (
           <>
             <DropdownMenuItem>Last week</DropdownMenuItem>
-            <DropdownMenuItem disabled>Last month</DropdownMenuItem>
-            <DropdownMenuItem>Last year</DropdownMenuItem>
+            <DropdownMenuItem>Last month</DropdownMenuItem>
           </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+type Option = { value: string; label: string };
+
+type Props = {
+  options: Option[];
+  value: string; // nilai aktif (dikontrol parent Tabs)
+  onChange: (value: string) => void; // panggil ini saat Select berubah
+  className?: string;
+  selectTriggerClassName?: string;
+  tabsListClassName?: string;
+  tabsTriggerClassName?: string;
+};
+
+export function OurCardActionsTabs({
+  options,
+  value,
+  onChange,
+  className,
+  selectTriggerClassName,
+  tabsListClassName,
+  tabsTriggerClassName,
+}: Props) {
+  return (
+    <div className={cn('-mt-2 -me-2', className)}>
+      {/* Mobile: Select */}
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger
+          id="view-selector"
+          size="sm"
+          className={cn('flex w-fit md:hidden', selectTriggerClassName)}
+        >
+          <SelectValue placeholder="Select a view" />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <TabsList
+        className={cn(
+          'hidden md:flex bg-transparent border border-border',
+          tabsListClassName
+        )}
+      >
+        {options.map((opt) => (
+          <TabsTrigger
+            key={opt.value}
+            value={opt.value}
+            className={cn(tabsTriggerClassName)}
+          >
+            {opt.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </div>
   );
 }

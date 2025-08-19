@@ -10,11 +10,7 @@ import CompetitorRankingCarousel from './competitor-ranking-corousel';
 
 export default function ActivityPerformance() {
   return (
-    <OurCard
-      title="Activity"
-      period="Last Month"
-      className="col-span-full md:col-span-1 "
-    >
+    <OurCard title="Activity" className="col-span-full md:col-span-1 ">
       <CompetitorRankingCarousel
         title="Ranking Activity"
         description="List ranking activity"

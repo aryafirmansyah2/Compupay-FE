@@ -1,24 +1,27 @@
 'use client';
-import {
-  SelfGrowthActionsTabs,
-  SelfGrowthCardActionsDropdown,
-  SelfGrowthTabsCard,
-} from '@/components/shared/self-growth/self-growth-card';
+
 import React from 'react';
 import { TabsContent } from '@/components/ui/tabs';
 import { socialBenchmark } from '../_data/social-benchmark';
 import { OurBarChart } from '@/components/custom/our-chart';
 import { ChartTooltipContent } from '@/components/ui/chart';
+import { OurCardActionsTabs, OurCardTabs } from '@/components/custom/our-card';
 
 export default function SocialBenchmark() {
+  const options = [
+    { label: 'engagement', value: 'engagement' },
+    { label: 'awareness', value: 'awareness' },
+    { label: 'convorsation', value: 'convorsation' },
+  ];
+  const [tab, setTab] = React.useState(options[0].value);
+
   return (
-    <SelfGrowthTabsCard
+    <OurCardTabs
       title="Social Benchmark"
-      period="Last Month"
+      defaultValueTabs="engagement"
       action={
         <div className="flex items-center justify-start gap-4">
-          <SelfGrowthActionsTabs />
-          <SelfGrowthCardActionsDropdown />
+          <OurCardActionsTabs options={options} value={tab} onChange={setTab} />
         </div>
       }
       size="fill"
@@ -49,6 +52,7 @@ export default function SocialBenchmark() {
           }
         />
       </TabsContent>
+
       <TabsContent value="awareness" className="flex flex-col ">
         <OurBarChart
           chartConfig={socialBenchmark.awarenessMatric.chartConfig}
@@ -74,6 +78,7 @@ export default function SocialBenchmark() {
           }
         />
       </TabsContent>
+
       <TabsContent value="convorsation" className="flex flex-col ">
         <OurBarChart
           chartConfig={socialBenchmark.convorsationMatric.chartConfig}
@@ -99,6 +104,6 @@ export default function SocialBenchmark() {
           }
         />
       </TabsContent>
-    </SelfGrowthTabsCard>
+    </OurCardTabs>
   );
 }

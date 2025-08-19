@@ -10,11 +10,7 @@ import CompetitorRankingCarousel from './competitor-ranking-corousel';
 
 export default function FollowersPerformance() {
   return (
-    <OurCard
-      title="Followers"
-      period="Last Month"
-      className="col-span-full md:col-span-1 "
-    >
+    <OurCard title="Followers" className="col-span-full md:col-span-1 ">
       <CompetitorRankingCarousel
         title="Ranking Followers"
         description="List ranking followers"

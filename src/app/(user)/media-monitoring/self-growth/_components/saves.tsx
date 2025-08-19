@@ -1,27 +1,14 @@
 'use client';
-import {
-  SelfGrowthActionsSelect,
-  SelfGrowthCard,
-  SelfGrowthCardActionsDropdown,
-} from '@/components/shared/self-growth/self-growth-card';
+
 import React from 'react';
 import { savesData } from '../_data/saves';
 import { OurBarChart } from '@/components/custom/our-chart';
 import { ChartTooltipContent } from '@/components/ui/chart';
+import { OurCard } from '@/components/custom/our-card';
 
 export default function Saves() {
   return (
-    <SelfGrowthCard
-      title="Saves"
-      period="Last Month"
-      action={
-        <div className="flex items-center justify-start gap-4">
-          <SelfGrowthActionsSelect /> <SelfGrowthCardActionsDropdown />
-        </div>
-      }
-      size="sm"
-      className="col-span-full md:col-span-1"
-    >
+    <OurCard title="Saves" size="sm" className="col-span-full md:col-span-1">
       <OurBarChart
         chartConfig={savesData.chartConfig}
         data={savesData.data}
@@ -45,6 +32,6 @@ export default function Saves() {
           />
         }
       />
-    </SelfGrowthCard>
+    </OurCard>
   );
 }

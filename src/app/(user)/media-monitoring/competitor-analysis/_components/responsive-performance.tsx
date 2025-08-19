@@ -9,11 +9,7 @@ import CompetitorRankingCarousel from './competitor-ranking-corousel';
 
 export default function ResponsivePerformance() {
   return (
-    <OurCard
-      title="Responsive"
-      period="Last Month"
-      className="col-span-full md:col-span-1 "
-    >
+    <OurCard title="Responsive" className="col-span-full md:col-span-1 ">
       <CompetitorRankingCarousel
         title="Ranking Responsive"
         description="List ranking responsive"

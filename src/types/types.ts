@@ -22,3 +22,9 @@ export interface ChartProps {
   chartConfig: ChartConfig;
   data: Record<string, string | number>[];
 }
+
+export interface TabItem {
+  name: string;
+  value: string;
+  content: React.ReactNode;
+}

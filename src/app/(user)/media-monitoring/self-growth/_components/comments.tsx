@@ -1,27 +1,14 @@
 'use client';
-import {
-  SelfGrowthActionsSelect,
-  SelfGrowthCard,
-  SelfGrowthCardActionsDropdown,
-} from '@/components/shared/self-growth/self-growth-card';
+
 import React from 'react';
 import { commentsData } from '../_data/comments';
 import { OurBarChart } from '@/components/custom/our-chart';
 import { ChartTooltipContent } from '@/components/ui/chart';
+import { OurCard } from '@/components/custom/our-card';
 
 export default function Comments() {
   return (
-    <SelfGrowthCard
-      title="Comments"
-      period="Last Month"
-      action={
-        <div className="flex items-center justify-start gap-4">
-          <SelfGrowthActionsSelect /> <SelfGrowthCardActionsDropdown />
-        </div>
-      }
-      size="sm"
-      className="col-span-full md:col-span-1"
-    >
+    <OurCard title="Comments" size="sm" className="col-span-full md:col-span-1">
       <OurBarChart
         chartConfig={commentsData.chartConfig}
         data={commentsData.data}
@@ -45,6 +32,6 @@ export default function Comments() {
           />
         }
       />
-    </SelfGrowthCard>
+    </OurCard>
   );
 }
