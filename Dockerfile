@@ -1,0 +1,21 @@
+FROM node:22-alpine
+
+ARG NEXT_PUBLIC_HOST
+ARG NEXT_PUBLIC_DEFAULT_THEME
+
+ENV NEXT_PUBLIC_HOST=$NEXT_PUBLIC_HOST
+ENV NEXT_PUBLIC_DEFAULT_THEME=$NEXT_PUBLIC_DEFAULT_THEME
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm install --omit-dev
+
+COPY . .
+
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]
