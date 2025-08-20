@@ -28,8 +28,9 @@ jobs:
       - name: 🛠 Build Docker Image
         run: |
             docker build \
-                --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_HOST }} \
-                --build-arg MEXT_PUBLIC_DEFAULT_THEME=${{ secrets.NEXT_PUBLIC_DEFAULT_THEME }} \
+                --build-arg NEXT_PUBLIC_API_URL="${{ secrets.NEXT_PUBLIC_HOST }}" \
+                --build-arg NEXTAUTH_URL="${{ secrets.NEXTAUTH_URL }}" \
+                --build-arg MEXT_PUBLIC_DEFAULT_THEME="${{ secrets.NEXT_PUBLIC_DEFAULT_THEME }}" \
                 -t nevmock/n4p-fe-dev:latest .
 
       - name: 📤 Push Docker Image
