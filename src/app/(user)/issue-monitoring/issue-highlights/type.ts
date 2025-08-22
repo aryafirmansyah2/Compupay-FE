@@ -8,3 +8,11 @@ export interface Issues {
   tiktok: number;
   facebook: number;
 }
+
+export interface TopicContentPerformanceData {
+  text: string;
+  platform: 'Instagram' | 'Tiktok' | 'X' | 'Facebook' | 'News';
+  likes: number;
+  link: string;
+  sentiment: 'Positive' | 'Negative' | 'Netral';
+}

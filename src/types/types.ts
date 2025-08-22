@@ -1,4 +1,5 @@
 import { type LucideIcon } from 'lucide-react';
+import type { ComponentType, SVGAttributes } from 'react';
 
 export type FormatStyleType =
   | 'percent'
@@ -7,7 +8,12 @@ export type FormatStyleType =
   | 'regular'
   | 'socialMedia';
 
-export type IconType = LucideIcon;
+export interface IconProps extends SVGAttributes<SVGElement> {
+  children?: never;
+  color?: string;
+}
+
+export type IconType = ComponentType<IconProps> | LucideIcon;
 
 export interface ChartConfigItem {
   label: string;
