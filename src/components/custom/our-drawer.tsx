@@ -1,4 +1,3 @@
-// OurDrawer.tsx
 'use client';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
@@ -14,6 +13,7 @@ import {
   DrawerTrigger,
 } from '../ui/drawer';
 import { Button } from '../ui/button';
+import { cn } from '@/lib/utils';
 
 interface DrawerProps extends ComponentProps<'div'> {
   direction?: 'top' | 'bottom' | 'left' | 'right';
@@ -21,6 +21,12 @@ interface DrawerProps extends ComponentProps<'div'> {
   title: string;
   description: string;
   tooltip?: React.ReactNode; // <- optional tooltip text/node
+  onSubmit?: () => void; // Callback for submit action
+  onDone?: () => void; // Callback for done action
+  submitButtonText?: string; // Custom text for Submit button
+  doneButtonText?: string; // Custom text for Done button
+  headerActions?: React.ReactNode; // Custom header actions like close or other buttons
+  contentClassName?: string;
 }
 
 export default function OurDrawer({
@@ -30,6 +36,12 @@ export default function OurDrawer({
   description,
   children,
   tooltip,
+  onSubmit,
+  onDone,
+  submitButtonText = 'Submit', // Default text
+  doneButtonText = 'Done', // Default text
+  headerActions,
+  contentClassName,
 }: DrawerProps) {
   const trigger = <DrawerTrigger asChild>{action}</DrawerTrigger>;
 
@@ -45,21 +57,37 @@ export default function OurDrawer({
       )}
 
       <DrawerContent>
-        <DrawerHeader className="gap-1">
-          <DrawerTitle>{title}</DrawerTitle>
-          <DrawerDescription>{description}</DrawerDescription>
-        </DrawerHeader>
+        <div className={cn(contentClassName)}>
+          <DrawerHeader>
+            {/* <div className="flex justify-between items-center">
+              <div> */}
+            <DrawerTitle>{title}</DrawerTitle>
+            <DrawerDescription>{description}</DrawerDescription>
+            {/* </div>
+              {headerActions && (
+                <div className="flex items-center">{headerActions}</div>
+              )}
+            </div> */}
+          </DrawerHeader>
 
-        <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          <div className="flex flex-col gap-4">{children}</div>
+          <div>{children}</div>
+
+          <DrawerFooter>
+            {onSubmit && (
+              <Button onClick={onSubmit} className="mr-2">
+                {submitButtonText}
+              </Button>
+            )}
+            <DrawerClose asChild>
+              <Button
+                variant="outline"
+                onClick={onDone} // Optional callback for the Done button
+              >
+                {doneButtonText}
+              </Button>
+            </DrawerClose>
+          </DrawerFooter>
         </div>
-
-        <DrawerFooter>
-          <Button>Submit</Button>
-          <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
-          </DrawerClose>
-        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

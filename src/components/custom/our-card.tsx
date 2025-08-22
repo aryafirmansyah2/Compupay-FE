@@ -54,6 +54,8 @@ interface OurCardProps extends ComponentProps<'div'> {
   action?: ReactNode;
   contentClassName?: string;
   size?: VariantProps<typeof cardContentVariants>['size'];
+  /** Optional icon on the left of title */
+  icon?: IconType;
 }
 
 export function OurCard({
@@ -63,18 +65,29 @@ export function OurCard({
   children,
   contentClassName,
   size,
+  icon: Icon, // ⬅️ new
   ...props
 }: OurCardProps) {
   return (
     <Card asChild {...props}>
-      <article className="w-full flex flex-col justify-start ">
+      <article className="w-full flex flex-col justify-start">
         <div className="flex justify-between p-6">
           <div className="space-y-1">
-            <CardTitle>{title}</CardTitle>
-            {period && <CardDescription>{period}</CardDescription>}
+            <div className="flex items-center gap-2">
+              {Icon && (
+                <Card className="p-1 bg-muted">
+                  <Icon className="size-full" />
+                </Card>
+              )}
+              <div className="flex flex-col">
+                <CardTitle>{title}</CardTitle>
+                {period && <CardDescription>{period}</CardDescription>}
+              </div>
+            </div>
           </div>
           {action}
         </div>
+
         <CardContent
           className={cn(cardContentVariants({ size }), contentClassName)}
         >
