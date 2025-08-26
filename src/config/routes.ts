@@ -15,6 +15,7 @@ import {
   Cable,
   ClipboardPlus,
   UserRound,
+  MicVocal,
 } from 'lucide-react';
 
 export const routeGroups: TRouteGroup[] = [
@@ -52,7 +53,7 @@ export const routeGroups: TRouteGroup[] = [
     title: 'Issue Monitoring',
     items: [
       {
-        title: 'Excetive Summary',
+        title: 'Executive Summary',
         url: '/issue-monitoring/executive-summary',
         icon: NotepadText,
       },
@@ -61,10 +62,15 @@ export const routeGroups: TRouteGroup[] = [
         url: '/issue-monitoring/issue-highlights',
         icon: Siren,
       },
+    ],
+  },
+  {
+    title: 'Complaints Monitoring',
+    items: [
       {
-        title: 'Platform Overview',
-        url: '/issue-monitoring/platform-overview',
-        icon: FileCog,
+        title: 'Complaints',
+        url: '/citizen-complaints/complaints',
+        icon: MicVocal,
       },
     ],
   },

@@ -59,7 +59,7 @@ export function formatDuration(value: string | number | Date) {
   return isNegative ? `-${formattedDuration}` : formattedDuration;
 }
 
-export function formatCardValue(
+export function formatValue(
   value: number,
   formatStyle: FormatStyleType
 ): string | number {

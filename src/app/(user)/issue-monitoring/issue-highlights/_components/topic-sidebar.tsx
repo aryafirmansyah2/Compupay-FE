@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { CardDescription, CardTitle } from '@/components/ui/card';
 import { CalendarDatePicker } from '@/components/ui/date-range-picker';
 import { Input } from '@/components/ui/input';
-import { cn, formatCardValue } from '@/lib/utils';
+import { cn, formatValue } from '@/lib/utils';
 import { File, Search } from 'lucide-react';
 import React from 'react';
 import { topic } from '../_data/topic';
@@ -65,7 +65,7 @@ import Link from 'next/link';
 //             <OurCard
 //               key={index}
 //               title={item.topic}
-//               period={`${formatCardValue(
+//               period={`${formatValue(
 //                 item.countMentions,
 //                 'regular'
 //               )} Mentions`}
@@ -77,19 +77,19 @@ import Link from 'next/link';
 //                 <div>
 //                   <CardDescription>Positif</CardDescription>
 //                   <CardTitle>
-//                     {formatCardValue(item.positiveMentions, 'regular')}
+//                     {formatValue(item.positiveMentions, 'regular')}
 //                   </CardTitle>
 //                 </div>
 //                 <div>
 //                   <CardDescription>Negative</CardDescription>
 //                   <CardTitle>
-//                     {formatCardValue(item.negativeMentions, 'regular')}
+//                     {formatValue(item.negativeMentions, 'regular')}
 //                   </CardTitle>
 //                 </div>
 //                 <div>
 //                   <CardDescription>Netral</CardDescription>
 //                   <CardTitle>
-//                     {formatCardValue(item.netralMentions, 'regular')}
+//                     {formatValue(item.netralMentions, 'regular')}
 //                   </CardTitle>
 //                 </div>
 //               </div>
@@ -156,7 +156,7 @@ export default function TopicSidebar() {
               >
                 <OurCard
                   title={item.topic}
-                  period={`${formatCardValue(
+                  period={`${formatValue(
                     item.countMentions,
                     'regular'
                   )} Mentions`}
@@ -168,19 +168,19 @@ export default function TopicSidebar() {
                     <div>
                       <CardDescription>Positif</CardDescription>
                       <CardTitle>
-                        {formatCardValue(item.positiveMentions, 'regular')}
+                        {formatValue(item.positiveMentions, 'regular')}
                       </CardTitle>
                     </div>
                     <div>
                       <CardDescription>Negative</CardDescription>
                       <CardTitle>
-                        {formatCardValue(item.negativeMentions, 'regular')}
+                        {formatValue(item.negativeMentions, 'regular')}
                       </CardTitle>
                     </div>
                     <div>
                       <CardDescription>Netral</CardDescription>
                       <CardTitle>
-                        {formatCardValue(item.netralMentions, 'regular')}
+                        {formatValue(item.netralMentions, 'regular')}
                       </CardTitle>
                     </div>
                   </div>

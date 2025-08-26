@@ -5,7 +5,7 @@ import { EllipsisVertical } from 'lucide-react';
 import type { VariantProps } from 'class-variance-authority';
 import type { ComponentProps, ReactNode } from 'react';
 
-import { cn, formatCardValue } from '@/lib/utils';
+import { cn, formatValue } from '@/lib/utils';
 
 import { buttonVariants } from '@/components/ui/button';
 import {
@@ -112,7 +112,7 @@ export function DashboardOverviewCard({
   contentClassName,
   ...props
 }: DashboardOverviewCardProps) {
-  const value = formatCardValue(data.value, formatStyle);
+  const value = formatValue(data.value, formatStyle);
 
   return (
     <Card

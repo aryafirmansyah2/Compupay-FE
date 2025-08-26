@@ -41,16 +41,21 @@ export default function CompetitorRankingList({
         // tooltip="Show All"
         title={title}
         description={description}
+        onSubmit={() => {}}
+        submitButtonText="Submit"
+        doneButtonText="Done"
       >
-        {data.map((item, index) => (
-          <CompetitorRankingItem
-            key={index}
-            account={item.account}
-            avatar={item.avatar}
-            score={item.score}
-            index={index}
-          />
-        ))}
+        <div className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-190px)] px-4">
+          {data.map((item, index) => (
+            <CompetitorRankingItem
+              key={index}
+              account={item.account}
+              avatar={item.avatar}
+              score={item.score}
+              index={index}
+            />
+          ))}
+        </div>
       </OurDrawer>
     </div>
   );

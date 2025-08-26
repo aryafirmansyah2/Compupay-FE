@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { CalendarDatePicker } from '@/components/ui/date-range-picker';
 import { Input } from '@/components/ui/input';
-import { cn, formatCardValue } from '@/lib/utils';
+import { cn, formatValue } from '@/lib/utils';
 import { File, Search } from 'lucide-react';
 import React from 'react';
 import SubTopicPositive from './sub-topic-positive';

@@ -3,7 +3,7 @@ import { cva, VariantProps } from 'class-variance-authority';
 import { VariantProps as ButtonVariantProps } from 'class-variance-authority';
 import React, { ComponentProps, ReactNode, useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '../ui/card';
-import { cn, formatCardValue } from '@/lib/utils';
+import { cn, formatValue } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -126,7 +126,7 @@ export function OurCardV2({
   contentClassName,
   ...props
 }: OurCardV2Props) {
-  const value = formatCardValue(data.value, formatStyle);
+  const value = formatValue(data.value, formatStyle);
 
   return (
     <Card
@@ -173,6 +173,7 @@ interface OurCardCarouselProps extends ComponentProps<'div'> {
   title: string;
   period?: string;
   slides: ReactNode[];
+  action?: ReactNode;
   contentClassName?: string;
   size?: VariantProps<typeof cardContentVariants>['size'];
   showDots?: boolean;
@@ -185,6 +186,7 @@ export function OurCardCarousel({
   slides,
   contentClassName,
   size,
+  action,
   showDots = true,
   loop = false,
   ...props
@@ -220,11 +222,14 @@ export function OurCardCarousel({
             <CardTitle className="truncate">{title}</CardTitle>
             {period && <CardDescription>{period}</CardDescription>}
           </div>
-          <OurCardActionsCarousel
-            api={api}
-            canPrev={canPrev}
-            canNext={canNext}
-          />
+          <div className="flex gap-4">
+            {action}
+            <OurCardActionsCarousel
+              api={api}
+              canPrev={canPrev}
+              canNext={canNext}
+            />
+          </div>
         </div>
         <CardContent
           className={cn(cardContentVariants({ size }), contentClassName)}

@@ -360,6 +360,7 @@ export interface PaiChartType extends ChartProps {
   innerRadius?: number;
   tooltipContent?: TooltipContentType<ValueType, NameType>;
   legendContent?: LegendContentType;
+  showLegend?: boolean;
 }
 
 export function OurPieChart({
@@ -370,6 +371,7 @@ export function OurPieChart({
   innerRadius = 60,
   tooltipContent: TooltipContent,
   legendContent: LegendContent,
+  showLegend = true,
 }: PaiChartType) {
   const config = chartConfig satisfies ChartConfig;
 
@@ -385,19 +387,20 @@ export function OurPieChart({
             content={TooltipContent ?? <ChartTooltipContent hideLabel />}
           />
 
-          <ChartLegend
-            content={
-              typeof LegendContent === 'function'
-                ? (props) => LegendContent(props)
-                : LegendContent ?? (
-                    <ChartLegendContent
-                      nameKey={nameKey}
-                      className="-translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
-                    />
-                  )
-            }
-            className="-translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
-          />
+          {showLegend && ( // Menambahkan pengecekan showLegend
+            <ChartLegend
+              content={
+                typeof LegendContent === 'function'
+                  ? (props) => LegendContent(props)
+                  : LegendContent ?? (
+                      <ChartLegendContent
+                        nameKey={nameKey}
+                        className="-translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
+                      />
+                    )
+              }
+            />
+          )}
 
           <Pie
             data={data}
@@ -460,3 +463,28 @@ export function OurPieChartV2({
     </ChartContainer>
   );
 }
+
+// Chart Legend Custom
+
+export const OurChartLegendContent = ({ nameKey, data }: any) => {
+  return (
+    <div className="flex flex-col">
+      {data.map((entry: any, index: number) => (
+        <div key={index} className="flex items-center">
+          <div
+            style={{
+              backgroundColor: entry.fill, // Menampilkan warna masing-masing kategori
+              width: 10,
+              height: 10,
+              marginRight: 8,
+            }}
+          />
+          <span>
+            {entry[nameKey]}: {entry.value} units
+          </span>{' '}
+          {/* Menampilkan nama kategori dan nilai */}
+        </div>
+      ))}
+    </div>
+  );
+};
