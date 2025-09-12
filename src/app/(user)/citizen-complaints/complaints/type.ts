@@ -10,8 +10,18 @@ export type UserRow = {
   situation: string;
   media: {
     url: string; // URL file yang dipakai di UI
-    type: 'image' | 'video' | 'gif'; // tipe media
+    type: "image" | "video" | "gif"; // tipe media
     caption?: string; // keterangan (opsional)
     originalUrl?: string;
   }[];
+};
+
+export type StepStatus = "done" | "current" | "next" | "blocked";
+
+export type StepItem = {
+  key: string;
+  label: string;
+  content?: React.ReactNode;
+  at?: string; // Waktu dalam format string, misalnya "2023-10-01 10:00"
+  status: StepStatus;
 };

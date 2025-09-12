@@ -1,18 +1,18 @@
 // columns/media-column.tsx
-'use client';
+"use client";
 
-import { useMemo, useState } from 'react';
-import type { ColumnDef } from '@tanstack/react-table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useMemo, useState } from "react";
+import type { ColumnDef } from "@tanstack/react-table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
-import { Play, ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+} from "@/components/ui/dialog";
+import { Play, ImageIcon, ChevronLeft, ChevronRight } from "lucide-react";
 
 // -- Tipe baris kamu (samakan dengan di proyek)
 export type UserRow = {
@@ -27,7 +27,7 @@ export type UserRow = {
   situation: string;
   media: {
     url: string;
-    type: 'image' | 'video' | 'gif';
+    type: "image" | "video" | "gif";
     caption?: string;
     originalUrl?: string;
   }[];
@@ -39,32 +39,32 @@ function StackedMediaThumb({
   items,
   onClick,
 }: {
-  items: UserRow['media'];
+  items: UserRow["media"];
   onClick: () => void;
 }) {
   const first = items[0];
   const count = items.length;
-  const isImage = first.type === 'image' || first.type === 'gif';
+  const isImage = first.type === "image" || first.type === "gif";
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="relative h-16 w-16 overflow-hidden rounded-md ring-1 ring-border focus:outline-none focus:ring-2 focus:ring-primary"
+      className="relative h-16 w-16 overflow-hidden rounded-md ring-1 ring-border focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
       title={first.caption || first.type}
       aria-label={
-        count > 1 ? `Open media gallery, ${count} items` : 'Open media'
+        count > 1 ? `Open media gallery, ${count} items` : "Open media"
       }
     >
       {isImage ? (
         <img
           src={first.url}
-          alt={first.caption || 'media'}
+          alt={first.caption || "media"}
           className="h-full w-full object-cover"
           loading="lazy"
         />
       ) : (
-        <div className="relative grid h-full w-full place-items-center bg-muted/40">
+        <div className="relative grid h-full w-full place-items-center bg-muted/40 cursor-pointer">
           <video
             src={first.url}
             className="absolute inset-0 h-full w-full object-cover opacity-70"
@@ -76,7 +76,7 @@ function StackedMediaThumb({
       )}
 
       {count > 1 && (
-        <div className="absolute inset-0 grid place-items-center bg-black/50">
+        <div className="absolute inset-0 grid place-items-center bg-black/50 cursor-pointer">
           <span className="text-xs font-medium text-white">+{count - 1}</span>
         </div>
       )}
@@ -84,47 +84,6 @@ function StackedMediaThumb({
   );
 }
 
-// Thumbnail komponen kecil
-// function MediaThumb({
-//   item,
-//   onClick,
-// }: {
-//   item: UserRow['media'][number];
-//   onClick: () => void;
-// }) {
-//   const isImage = item.type === 'image' || item.type === 'gif';
-//   return (
-//     <button
-//       type="button"
-//       onClick={onClick}
-//       className="relative h-16 w-16 overflow-hidden rounded-md ring-1 ring-border focus:outline-none focus:ring-2 focus:ring-primary"
-//       title={item.caption || item.type}
-//     >
-//       {isImage ? (
-//         // Hindari Next/Image biar portable
-//         <img
-//           src={item.url}
-//           alt={item.caption || 'media'}
-//           className="h-full w-full object-cover"
-//           loading="lazy"
-//         />
-//       ) : (
-//         <div className="relative grid h-full w-full place-items-center bg-muted/40">
-//           {/* Tampilkan frame awal (opsional); fallback ke icon */}
-//           <video
-//             src={item.url}
-//             className="absolute inset-0 h-full w-full object-cover opacity-70"
-//             muted
-//             preload="metadata"
-//           />
-//           <Play className="relative h-6 w-6 text-foreground" />
-//         </div>
-//       )}
-//     </button>
-//   );
-// }
-
-// Viewer dialog
 function MediaViewer({
   items,
   open,
@@ -132,7 +91,7 @@ function MediaViewer({
   onOpenChange,
   onIndexChange,
 }: {
-  items: UserRow['media'];
+  items: UserRow["media"];
   open: boolean;
   index: number;
   onOpenChange: (v: boolean) => void;
@@ -169,10 +128,10 @@ function MediaViewer({
           </Button>
 
           <div className="relative max-h-[70vh] flex-1 overflow-hidden rounded-lg bg-black/5 p-2">
-            {item?.type === 'image' || item?.type === 'gif' ? (
+            {item?.type === "image" || item?.type === "gif" ? (
               <img
                 src={item.url}
-                alt={item.caption || 'media'}
+                alt={item.caption || "media"}
                 className="mx-auto max-h-[66vh] w-auto rounded-md object-contain"
               />
             ) : (
@@ -206,7 +165,7 @@ function MediaViewer({
 }
 
 // Cell untuk kolom media
-export function MediaCell({ items }: { items: UserRow['media'] }) {
+export function MediaCell({ items }: { items: UserRow["media"] }) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 

@@ -1,5 +1,5 @@
-'use client';
-import { User2, ChevronUp } from 'lucide-react';
+"use client";
+import { User2, ChevronUp } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,19 +13,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-} from '@/components/ui/sidebar';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useTheme } from 'next-themes';
-import { useSidebar } from '@/components/ui/sidebar';
+} from "@/components/ui/sidebar";
+import Link from "next/link";
+import Image from "next/image";
+import { useTheme } from "next-themes";
+import { useSidebar } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { routeGroups } from '@/config/routes';
-import { usePathname } from 'next/navigation';
+} from "@/components/ui/dropdown-menu";
+import { routeGroups } from "@/config/routes";
+import { usePathname } from "next/navigation";
 
 const AppSidebar = () => {
   const pathname = usePathname();
@@ -34,24 +34,24 @@ const AppSidebar = () => {
   const { state } = useSidebar(); // 'expanded' | 'collapsed'
   // Tentukan tema aktif (system, light, dark)
   let activeTheme = theme;
-  if (theme === 'system') {
-    if (typeof window !== 'undefined') {
-      activeTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light';
+  if (theme === "system") {
+    if (typeof window !== "undefined") {
+      activeTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
     } else {
-      activeTheme = 'light'; // fallback default
+      activeTheme = "light"; // fallback default
     }
   }
   // Pilih logo sesuai state dan tema
-  let logoSrc = '';
-  if (state === 'collapsed') {
-    logoSrc = '/assets/logo/logo-v2.png';
+  let logoSrc = "";
+  if (state === "collapsed") {
+    logoSrc = "/assets/logo/logo-v2.png";
   } else {
     logoSrc =
-      activeTheme === 'dark'
-        ? '/assets/logo/logo-v2.png'
-        : '/assets/logo/logo-v2.png';
+      activeTheme === "dark"
+        ? "/assets/logo/logo-v2.png"
+        : "/assets/logo/logo-v2.png";
   }
   return (
     <Sidebar collapsible="icon">
@@ -63,8 +63,10 @@ const AppSidebar = () => {
                 <Image
                   src={logoSrc}
                   alt="logo"
-                  width={state === 'collapsed' ? 40 : 125}
-                  height={state === 'collapsed' ? 40 : 20}
+                  // width={state === "collapsed" ? 40 : 125}
+                  // height={state === "collapsed" ? 85 : 20}
+                  height={80}
+                  width={80}
                 />
               </Link>
             </SidebarMenuButton>
@@ -89,7 +91,7 @@ const AppSidebar = () => {
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
-                    {item.title === 'Inbox' && (
+                    {item.title === "Inbox" && (
                       <SidebarMenuBadge>24</SidebarMenuBadge>
                     )}
                   </SidebarMenuItem>

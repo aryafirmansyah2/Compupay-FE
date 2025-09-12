@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -13,7 +13,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
+} from "@tanstack/react-table";
 
 import {
   Table,
@@ -22,28 +22,28 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
-} from '@/components/ui/dropdown-menu';
-import { Checkbox } from '@/components/ui/checkbox';
+} from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Columns3, Download, Search } from 'lucide-react';
+} from "@/components/ui/select";
+import { Columns3, Download, Search } from "lucide-react";
 
 // Opsional: pakai pagination component Anda sendiri
-import { DataTablePagination } from '@/components/ui/data-table/data-table-pagination';
-import { cn } from '@/lib/utils';
+import { DataTablePagination } from "@/components/ui/data-table/data-table-pagination";
+import { cn } from "@/lib/utils";
 
 type RowSelectionState = Record<string, boolean>;
 
@@ -83,29 +83,29 @@ export interface DataTableProps<TData extends AnyData, TValue = unknown> {
 }
 
 function escapeCSV(v: unknown) {
-  const s = v == null ? '' : String(v).replace(/"/g, '""');
+  const s = v == null ? "" : String(v).replace(/"/g, '""');
   return `"${s}"`;
 }
 
 export function headerLabel<TData>(colDef: ColumnDef<TData, unknown>): string {
   const { header } = colDef;
-  if (typeof header === 'string') return header;
+  if (typeof header === "string") return header;
 
   // Narrowing aman untuk id
-  if ('id' in colDef) {
+  if ("id" in colDef) {
     const id = (colDef as { id?: unknown }).id;
-    if (typeof id === 'string' && id) return id;
+    if (typeof id === "string" && id) return id;
   }
 
   // Narrowing aman untuk accessorKey (bisa string | keyof TData)
-  if ('accessorKey' in colDef) {
+  if ("accessorKey" in colDef) {
     const ak = (colDef as { accessorKey?: unknown }).accessorKey;
-    if (typeof ak === 'string' && ak) return ak;
+    if (typeof ak === "string" && ak) return ak;
     // kalau accessorKey berupa symbol/keyof, fallback ke String()
     if (ak != null) return String(ak);
   }
 
-  return '';
+  return "";
 }
 
 export default function DataTable<TData extends AnyData, TValue = unknown>({
@@ -130,11 +130,11 @@ export default function DataTable<TData extends AnyData, TValue = unknown>({
     initialVisibility ?? {}
   );
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [globalFilter, setGlobalFilter] = useState<string>('');
+  const [globalFilter, setGlobalFilter] = useState<string>("");
 
   // Debounce search
-  const [search, setSearch] = useState<string>(externalSearch ?? '');
-  useEffect(() => setSearch(externalSearch ?? ''), [externalSearch]);
+  const [search, setSearch] = useState<string>(externalSearch ?? "");
+  useEffect(() => setSearch(externalSearch ?? ""), [externalSearch]);
   useEffect(() => {
     const t = setTimeout(() => setGlobalFilter(search), 300);
     return () => clearTimeout(t);
@@ -143,7 +143,7 @@ export default function DataTable<TData extends AnyData, TValue = unknown>({
   // Inject selection column
   const selectionColumn: ColumnDef<TData, unknown> = useMemo(
     () => ({
-      id: '__select__',
+      id: "__select__",
       header: ({ table }) => (
         <Checkbox
           aria-label="Select all"
@@ -259,27 +259,27 @@ export default function DataTable<TData extends AnyData, TValue = unknown>({
     const header = visibleCols.map((c) =>
       headerLabel(c.columnDef as ColumnDef<TData, unknown>)
     );
-    const lines = [header.join(',')];
+    const lines = [header.join(",")];
 
     for (const r of rows) {
       const vals = visibleCols.map((c) => {
         const id = c.id;
-        const v = id ? (r.getValue(id) as unknown) : '';
+        const v = id ? (r.getValue(id) as unknown) : "";
         return escapeCSV(v);
       });
-      lines.push(vals.join(','));
+      lines.push(vals.join(","));
     }
 
-    const blob = new Blob([lines.join('\n')], {
-      type: 'text/csv;charset=utf-8;',
+    const blob = new Blob([lines.join("\n")], {
+      type: "text/csv;charset=utf-8;",
     });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `export-${new Date()
       .toISOString()
       .slice(0, 19)
-      .replace(/[:T]/g, '-')}.csv`;
+      .replace(/[:T]/g, "-")}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -299,8 +299,8 @@ export default function DataTable<TData extends AnyData, TValue = unknown>({
               onChange={(e) => setSearch(e.target.value)}
               placeholder={`Search ${
                 searchableKeys && searchableKeys.length
-                  ? searchableKeys.join(', ')
-                  : 'all'
+                  ? searchableKeys.join(", ")
+                  : "all"
               }...`}
               className="pl-8"
             />
@@ -319,7 +319,7 @@ export default function DataTable<TData extends AnyData, TValue = unknown>({
                 className="max-h-72 w-56 overflow-auto"
               >
                 {table.getAllLeafColumns().map((column) => {
-                  if (column.id === '__select__') return null;
+                  if (column.id === "__select__") return null;
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}
@@ -390,7 +390,7 @@ export default function DataTable<TData extends AnyData, TValue = unknown>({
                       <TableHead
                         key={header.id}
                         style={{ width: header.getSize() }}
-                        className="whitespace-nowrap hover:bg-transparent cursor-pointer"
+                        className="whitespace-nowrap hover:bg-transparent "
                         onClick={header.column.getToggleSortingHandler?.()}
                       >
                         {header.isPlaceholder
@@ -400,9 +400,9 @@ export default function DataTable<TData extends AnyData, TValue = unknown>({
                               header.getContext()
                             )}
                         {{
-                          asc: ' ▲',
-                          desc: ' ▼',
-                        }[header.column.getIsSorted() as 'asc' | 'desc'] ??
+                          asc: " ▲",
+                          desc: " ▼",
+                        }[header.column.getIsSorted() as "asc" | "desc"] ??
                           null}
                       </TableHead>
                     ))}
@@ -415,11 +415,11 @@ export default function DataTable<TData extends AnyData, TValue = unknown>({
                   table.getRowModel().rows.map((row) => (
                     <TableRow
                       key={row.id}
-                      data-state={row.getIsSelected() && 'selected'}
+                      data-state={row.getIsSelected() && "selected"}
                       onClick={() => onRowClick?.(row.original)}
                       className={cn(
-                        onRowClick ? 'cursor-pointer' : undefined,
-                        'hover:bg-muted/20'
+                        onRowClick ? "" : undefined,
+                        "hover:bg-muted/20"
                       )}
                     >
                       {row.getVisibleCells().map((cell) => (
