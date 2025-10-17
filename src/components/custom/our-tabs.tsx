@@ -1,12 +1,12 @@
 // components/custom/our-tabs.tsx
-'use client';
+"use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CardDescription, CardTitle } from '../ui/card';
-import { TabItem } from '@/types/types';
-import { ReactNode } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CardDescription, CardTitle } from "../ui/card";
+import { TabItem } from "@/types/types";
+import { ReactNode } from "react";
 export interface TabsUnderlinedProps {
-  title: string;
+  title?: string;
   period?: string;
   action?: ReactNode;
   tabs: TabItem[]; // <-- bukan string lagi
@@ -20,25 +20,28 @@ export default function TabsUnderlined({
 }: TabsUnderlinedProps) {
   return (
     <Tabs defaultValue={tabs[0]?.value} className="w-full flex flex-col gap-4">
-      <TabsList className="w-full p-0 bg-background justify-start border-0 border-b rounded-none">
+      {title && period && action && (
+        <div className="flex justify-between py-4">
+          <div className="space-y-1">
+            <CardTitle className="text-xl">{title}</CardTitle>
+            {period && <CardDescription>{period}</CardDescription>}
+          </div>
+
+          <div className="flex gap-2 items-center">{action}</div>
+        </div>
+      )}
+
+      <TabsList className="w-full p-0 bg-transparent justify-start border-0 border-b rounded-none">
         {tabs.map((tab) => (
           <TabsTrigger
             key={tab.value}
             value={tab.value}
-            className="rounded-none bg-background h-full data-[state=active]:shadow-none border-0 border-b-2 border-transparent data-[state=active]:border-foreground dark:data-[state=active]:border-primary max-w-[100px] w-full"
+            className="rounded-none bg-transparent h-full data-[state=active]:shadow-none border-0 border-b-2 border-transparent data-[state=active]:border-foreground dark:data-[state=active]:border-primary max-w-[100px] w-full"
           >
             <span className="text-[13px]">{tab.name}</span>
           </TabsTrigger>
         ))}
       </TabsList>
-      <div className="flex justify-between py-4">
-        <div className="space-y-1">
-          <CardTitle className="text-xl">{title}</CardTitle>
-          {period && <CardDescription>{period}</CardDescription>}
-        </div>
-
-        <div className="flex gap-2 items-center">{action}</div>
-      </div>
 
       {tabs.map((tab) => (
         <TabsContent key={tab.value} value={tab.value} className="">

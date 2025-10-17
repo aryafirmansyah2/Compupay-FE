@@ -11,8 +11,25 @@ export interface Issues {
 
 export interface TopicContentPerformanceData {
   text: string;
-  platform: 'Instagram' | 'Tiktok' | 'X' | 'Facebook' | 'News';
+  platform: "Instagram" | "Tiktok" | "X" | "Facebook" | "News";
   likes: number;
   link: string;
-  sentiment: 'Positive' | 'Negative' | 'Netral';
+  sentiment: "Positive" | "Negative" | "Netral";
+}
+
+export interface Topic {
+  id: string;
+  name: string;
+  count: number;
+  sentimen: {
+    positive: number;
+    negative: number;
+    neutral: number;
+  };
+}
+
+export interface subTopic {
+  id: string;
+  name: string;
+  sub_topic: [Topic];
 }

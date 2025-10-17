@@ -15,6 +15,7 @@ import {
   BookText,
   Settings,
   FileCheck,
+  CircleUserRound,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,11 +27,69 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { StepItem } from "../type";
+import { InfoItem, StepItem } from "../type";
 import VerticalTimeline from "../_components/vertical-timeline";
 import StepItemCard from "../_components/step-item-card";
+import InfoComplaint from "./_components/info/info-complaint";
+import TabsUnderlined from "@/components/custom/our-tabs";
+import { TabItem } from "@/types/types";
+import { useForm } from "react-hook-form";
+import ReproterDetails from "./_components/info/reproter-details";
+import AdminDetails from "./_components/info/admin-details";
+import ComplaintDetails from "./_components/info/complaint-details";
+import ChatComplaints from "./_components/chat/chat-reproter";
+import NeedVerification from "./_components/action/need-verification";
+import VerifySituation from "./_components/action/verify-situation";
+import FileVerification from "./_components/action/file-verification";
+import OpdProcess from "./_components/action/opd-process";
 
 export default function DetailComplaint() {
+  const form = useForm();
+
+  const info: InfoItem[] = [
+    {
+      key: "received",
+      label: "Need Verification",
+      content: (
+        <StepItemCard
+          title="Admin Details"
+          status="done"
+          icon={ShieldCheck}
+          isOpen
+        >
+          <AdminDetails />
+        </StepItemCard>
+      ),
+    },
+    {
+      key: "triage",
+      label: "Situation Verification",
+      content: (
+        <StepItemCard
+          title="Reporter Details"
+          status="done"
+          icon={Check}
+          isOpen
+        >
+          <ReproterDetails />
+        </StepItemCard>
+      ),
+    },
+    {
+      key: "assigned",
+      label: "Verification of Completeness of Files",
+      content: (
+        <StepItemCard
+          title="Complaint Details - (645563661645)"
+          status="done"
+          icon={BookText}
+          isOpen
+        >
+          <ComplaintDetails />
+        </StepItemCard>
+      ),
+    },
+  ];
   const steps: StepItem[] = [
     {
       key: "received",
@@ -41,7 +100,7 @@ export default function DetailComplaint() {
           status="done"
           icon={ShieldCheck}
         >
-          <div className="flex flex-col gap-4 text-balance leading-relaxed"></div>
+          <NeedVerification />
         </StepItemCard>
       ),
       at: "07 Sep 2025, 10:12",
@@ -56,7 +115,7 @@ export default function DetailComplaint() {
           status="done"
           icon={Check}
         >
-          <div className="flex flex-col gap-4 text-balance leading-relaxed"></div>
+          <VerifySituation />
         </StepItemCard>
       ),
       at: "07 Sep 2025, 10:35",
@@ -71,7 +130,7 @@ export default function DetailComplaint() {
           status="done"
           icon={BookText}
         >
-          <div className="flex flex-col gap-4 text-balance leading-relaxed"></div>
+          <FileVerification />
         </StepItemCard>
       ),
       at: "07 Sep 2025, 11:02",
@@ -86,7 +145,7 @@ export default function DetailComplaint() {
           status="done"
           icon={Settings}
         >
-          <div className="flex flex-col gap-4 text-balance leading-relaxed"></div>
+          <OpdProcess />
         </StepItemCard>
       ),
       status: "next",
@@ -106,6 +165,42 @@ export default function DetailComplaint() {
       status: "next",
     },
   ];
+  const tabs: TabItem[] = [
+    {
+      name: "Info",
+      value: "Info",
+      content: (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-1">
+          <InfoComplaint info={info} />
+        </div>
+      ),
+    },
+    {
+      name: "Action",
+      value: "Action",
+      content: (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-1">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Linimasa</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <VerticalTimeline steps={steps} />
+            </CardContent>
+          </Card>
+        </div>
+      ),
+    },
+    {
+      name: "Chat",
+      value: "Chat",
+      content: (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-1">
+          <ChatComplaints />
+        </div>
+      ),
+    },
+  ];
 
   return (
     <TooltipProvider>
@@ -116,7 +211,7 @@ export default function DetailComplaint() {
           transition={{ duration: 0.25 }}
         >
           <Card>
-            <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between h-full">
               <div className="flex items-center gap-4">
                 <div>
                   <Avatar className={cn(" aspect-square  w-12 h-12 ")}>
@@ -153,18 +248,7 @@ export default function DetailComplaint() {
             </CardHeader>
 
             <CardContent className="space-y-6">
-              {/* <HorizontalStepper steps={steps} /> */}
-              {/* <Separator /> */}
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-1">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Linimasa</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <VerticalTimeline steps={steps} />
-                  </CardContent>
-                </Card>
-              </div>
+              <TabsUnderlined tabs={tabs} />
             </CardContent>
           </Card>
         </motion.div>

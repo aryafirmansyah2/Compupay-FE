@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import TopicSidebar from './topic-sidebar';
+import type { ReactNode } from "react";
+import TopicSidebar from "./topic-sidebar";
 
 export function TopicWrapper({ children }: { children: ReactNode }) {
   return (

@@ -25,3 +25,9 @@ export type StepItem = {
   at?: string; // Waktu dalam format string, misalnya "2023-10-01 10:00"
   status: StepStatus;
 };
+
+export type InfoItem = {
+  key: string;
+  label: string;
+  content?: React.ReactNode;
+};

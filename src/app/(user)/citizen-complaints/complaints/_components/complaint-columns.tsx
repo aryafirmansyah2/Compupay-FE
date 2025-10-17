@@ -73,7 +73,7 @@ export const complaintsColumns: ColumnDef<UserRow>[] = [
           href={`/citizen-complaints/complaints/${row.original.id}`}
           className="cursor-pointer"
         >
-          <Button variant="link" className="text-white cursor-pointer">
+          <Button variant="link" className=" cursor-pointer">
             {name}
           </Button>
         </Link>
