@@ -22,6 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 const formatDate = (date: Date) => {
   const day = String(date.getDate()).padStart(2, "0");
@@ -32,7 +33,7 @@ const formatDate = (date: Date) => {
 
 const FormSchema = z.object({
   calendar: z.object({
-    from: z.date().optional(), // Bisa Date atau undefined
+    from: z.date(), // Bisa Date atau undefined
     to: z.date().optional(), // Bisa Date atau undefined
   }),
 });
@@ -47,11 +48,14 @@ export default function TopicSidebar() {
     to: undefined, // Awalnya undefined
   });
 
+  const [loading, setLoading] = useState<boolean>(false); // Add loading state
+
   const fetchDataTopic = async (
     fromDate: Date | undefined,
     toDate: Date | undefined
   ) => {
     try {
+      setLoading(true); // Start loading
       // Kirim permintaan tanpa tanggal jika fromDate atau toDate adalah undefined
       const res = await request.get(
         `/issue-monitoring/topics?start_date=${
@@ -62,6 +66,9 @@ export default function TopicSidebar() {
       setDataTopic(res.data);
     } catch (err) {
       console.error("Gagal fetch data perencanaan:", err);
+      toast.error("Failed to fetch data!");
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -93,6 +100,7 @@ export default function TopicSidebar() {
       action={<OurCardActionsDropdown />}
       size="fill"
       contentClassName="justify-start gap-4"
+      className="h-[calc(100vh-150px)]"
     >
       {/* Sticky wrapper */}
       <div className="sticky top-0 z-10 bg-card flex flex-col gap-2 py-2">
@@ -138,48 +146,64 @@ export default function TopicSidebar() {
           <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
         </div>
       </div>
-
-      {/* Scrollable content */}
-      <ScrollArea className="h-[calc(100vh-15rem)] md:h-[calc(100vh-26rem)] overflow-auto">
-        <ul className="flex flex-col gap-4">
-          {dataTopic.data &&
-            dataTopic.data.map((item, index) => (
-              <Link
-                key={index}
-                href={`/issue-monitoring/issue-highlights/${item.id}`}
-              >
-                <OurCard
-                  title={item.name}
-                  period={`${formatValue(item.count, "regular")} Mentions`}
-                  size="fill"
-                  icon={File}
-                  onClick={() => {}}
+      {loading ? (
+        <div className="flex justify-center items-center h-full ">
+          <Spinner variant={"default"} size={32} />
+          <span className="ml-4 text-muted-foreground font-medium">
+            Load Data
+          </span>
+        </div>
+      ) : (
+        <ScrollArea className="h-[calc(100vh-470px)] overflow-auto">
+          <ul className="flex flex-col gap-4">
+            {dataTopic.data &&
+              dataTopic.data.map((item, index) => (
+                <Link
+                  key={index}
+                  href={`/issue-monitoring/issue-highlights/${item.id}`}
                 >
-                  <div className="flex justify-between ">
-                    <div>
-                      <CardDescription>Positif</CardDescription>
-                      <CardTitle>
-                        {formatValue(Number(item.sentimen.positive), "regular")}
-                      </CardTitle>
+                  <OurCard
+                    title={item.name}
+                    period={`${formatValue(item.count, "regular")} Mentions`}
+                    size="fill"
+                    icon={File}
+                    onClick={() => {}}
+                  >
+                    <div className="flex justify-between ">
+                      <div>
+                        <CardDescription>Positif</CardDescription>
+                        <CardTitle>
+                          {formatValue(
+                            Number(item.sentimen.positive),
+                            "regular"
+                          )}
+                        </CardTitle>
+                      </div>
+                      <div>
+                        <CardDescription>Negative</CardDescription>
+                        <CardTitle>
+                          {formatValue(
+                            Number(item.sentimen.negative),
+                            "regular"
+                          )}
+                        </CardTitle>
+                      </div>
+                      <div>
+                        <CardDescription>Netral</CardDescription>
+                        <CardTitle>
+                          {formatValue(
+                            Number(item.sentimen.neutral),
+                            "regular"
+                          )}
+                        </CardTitle>
+                      </div>
                     </div>
-                    <div>
-                      <CardDescription>Negative</CardDescription>
-                      <CardTitle>
-                        {formatValue(Number(item.sentimen.negative), "regular")}
-                      </CardTitle>
-                    </div>
-                    <div>
-                      <CardDescription>Netral</CardDescription>
-                      <CardTitle>
-                        {formatValue(Number(item.sentimen.neutral), "regular")}
-                      </CardTitle>
-                    </div>
-                  </div>
-                </OurCard>
-              </Link>
-            ))}
-        </ul>
-      </ScrollArea>
+                  </OurCard>
+                </Link>
+              ))}
+          </ul>
+        </ScrollArea>
+      )}
     </OurCard>
   );
 }

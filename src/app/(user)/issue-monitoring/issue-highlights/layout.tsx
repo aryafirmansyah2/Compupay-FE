@@ -5,7 +5,7 @@ import { TopicProvider } from "@/context/issue-highlights-context/topic-context"
 export default function ChatLayout({ children }: { children: ReactNode }) {
   return (
     <TopicProvider>
-      <TopicWrapper>{children}</TopicWrapper>;
+      <TopicWrapper>{children}</TopicWrapper>
     </TopicProvider>
   );
 }
