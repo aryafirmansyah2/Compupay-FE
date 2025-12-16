@@ -1,4 +1,4 @@
-import { TRouteGroup } from '@/types/TRoutes';
+import { TRouteGroup } from "@/types/TRoutes";
 import {
   Home,
   Inbox,
@@ -16,90 +16,131 @@ import {
   ClipboardPlus,
   UserRound,
   MicVocal,
-} from 'lucide-react';
+  Users,
+  GitFork,
+  BriefcaseBusiness,
+  BanknoteArrowUp,
+  BanknoteArrowDown,
+  CircleDollarSign,
+} from "lucide-react";
 
 export const routeGroups: TRouteGroup[] = [
   {
-    title: 'Main',
+    title: "Main",
     items: [
       {
-        title: 'Overview',
-        url: '/overview',
+        title: "Overview",
+        url: "/overview",
         icon: LayoutDashboard,
       },
     ],
   },
   {
-    title: 'Media Monitoring',
+    title: "Data",
     items: [
       {
-        title: 'Self Growth',
-        url: '/media-monitoring/self-growth',
+        title: "Employee",
+        url: "/employee",
+        icon: Users,
+      },
+      {
+        title: "Department",
+        url: "/department",
+        icon: GitFork,
+      },
+      {
+        title: "Position",
+        url: "/position",
+        icon: BriefcaseBusiness,
+      },
+      {
+        title: "Deduction",
+        url: "/deduction",
+        icon: BanknoteArrowDown,
+      },
+      {
+        title: "Allawance",
+        url: "/allawance",
+        icon: BanknoteArrowUp,
+      },
+      {
+        title: "Payroll",
+        url: "/payroll",
+        icon: CircleDollarSign,
+      },
+    ],
+  },
+  {
+    title: "Media Monitoring",
+    items: [
+      {
+        title: "Self Growth",
+        url: "/media-monitoring/self-growth",
         icon: ChartNoAxesCombined,
       },
       {
-        title: 'Competitor Analysis',
-        url: '/media-monitoring/competitor-analysis',
+        title: "Competitor Analysis",
+        url: "/media-monitoring/competitor-analysis",
         icon: UserCheck,
       },
       {
-        title: 'Content Performance',
-        url: '/media-monitoring/content-performance',
+        title: "Content Performance",
+        url: "/media-monitoring/content-performance",
         icon: MonitorCog,
       },
     ],
   },
   {
-    title: 'Issue Monitoring',
+    title: "Issue Monitoring",
     items: [
       {
-        title: 'Executive Summary',
-        url: '/issue-monitoring/executive-summary',
+        title: "Executive Summary",
+        url: "/issue-monitoring/executive-summary",
         icon: NotepadText,
       },
       {
-        title: 'Issue Highlights',
-        url: '/issue-monitoring/issue-highlights',
+        title: "Issue Highlights",
+        url: "/issue-monitoring/issue-highlights",
         icon: Siren,
       },
     ],
   },
   {
-    title: 'Complaints Monitoring',
+    title: "Complaints Monitoring",
     items: [
       {
-        title: 'Complaints',
-        url: '/citizen-complaints/complaints',
+        title: "Complaints",
+        url: "/citizen-complaints/complaints",
         icon: MicVocal,
       },
     ],
   },
   {
-    title: 'Tools',
+    title: "Tools",
     items: [
       {
-        title: 'Integrations',
-        url: '/tools/integrations',
+        title: "Integrations",
+        url: "/tools/integrations",
         icon: Cable,
       },
       {
-        title: 'Report Tamplates',
-        url: '/tools/report-templates',
+        title: "Report Tamplates",
+        url: "/tools/report-templates",
         icon: ClipboardPlus,
       },
     ],
   },
   {
-    title: 'Others',
+    title: "Others",
     items: [
       {
-        title: 'Settings',
-        url: '/others/settings',
+        title: "Settings",
+        url: "/others/settings",
         icon: Settings,
       },
       {
-        title: 'Profile',
-        url: '/others/profile',
+        title: "Profile",
+        url: "/others/profile",
         icon: UserRound,
       },
     ],

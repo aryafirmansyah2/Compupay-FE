@@ -1,66 +1,66 @@
-'use client';
-import { cva, VariantProps } from 'class-variance-authority';
-import { VariantProps as ButtonVariantProps } from 'class-variance-authority';
-import React, { ComponentProps, ReactNode, useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardTitle } from '../ui/card';
-import { cn, formatValue } from '@/lib/utils';
+"use client";
+import { cva, VariantProps } from "class-variance-authority";
+import { VariantProps as ButtonVariantProps } from "class-variance-authority";
+import React, { ComponentProps, ReactNode, useEffect, useState } from "react";
+import { Card, CardContent, CardDescription, CardTitle } from "../ui/card";
+import { cn, formatValue } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { Button, buttonVariants } from '../ui/button';
-import { ChevronLeft, ChevronRight, EllipsisVertical } from 'lucide-react';
-import { FormatStyleType, IconType } from '@/types/types';
-import { Badge } from '../ui/badge';
-import { PercentageChangeBadge } from './our-badge';
+} from "../ui/dropdown-menu";
+import { Button, buttonVariants } from "../ui/button";
+import { ChevronLeft, ChevronRight, EllipsisVertical } from "lucide-react";
+import { FormatStyleType, IconType } from "@/types/types";
+import { Badge } from "../ui/badge";
+import { PercentageChangeBadge } from "./our-badge";
 import {
   Carousel,
   CarouselApi,
   CarouselContent,
   CarouselItem,
-} from '../ui/carousel';
-import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
+} from "../ui/carousel";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
+} from "../ui/select";
 
 export const cardContentVariants = cva(
-  'flex flex-col justify-between gap-y-6',
+  "flex flex-col justify-between gap-y-6",
   {
     variants: {
       size: {
-        xs: 'h-32',
-        sm: 'h-64',
-        default: 'h-96',
-        lg: 'h-[29rem]',
-        fill: 'h-full',
+        xs: "h-32",
+        sm: "h-64",
+        default: "h-96",
+        lg: "h-[29rem]",
+        fill: "h-full",
       },
     },
     defaultVariants: {
-      size: 'default',
+      size: "default",
     },
   }
 );
 
-interface OurCardProps extends ComponentProps<'div'> {
+interface OurCardProps extends ComponentProps<"div"> {
   title: string;
-  period?: string;
+  descTitle?: string;
   action?: ReactNode;
   contentClassName?: string;
-  size?: VariantProps<typeof cardContentVariants>['size'];
+  size?: VariantProps<typeof cardContentVariants>["size"];
   /** Optional icon on the left of title */
   icon?: IconType;
 }
 
 export function OurCard({
   title,
-  period,
+  descTitle,
   action,
   children,
   contentClassName,
@@ -71,7 +71,7 @@ export function OurCard({
   return (
     <Card asChild {...props}>
       <article className="w-full flex flex-col justify-start">
-        <div className="flex justify-between p-6">
+        <div className="flex justify-between items-center p-6">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               {Icon && (
@@ -81,7 +81,7 @@ export function OurCard({
               )}
               <div className="flex flex-col">
                 <CardTitle>{title}</CardTitle>
-                {period && <CardDescription>{period}</CardDescription>}
+                {descTitle && <CardDescription>{descTitle}</CardDescription>}
               </div>
             </div>
           </div>
@@ -98,7 +98,7 @@ export function OurCard({
   );
 }
 
-interface OurCardV2Props extends ComponentProps<'div'> {
+interface OurCardV2Props extends ComponentProps<"div"> {
   data: {
     value: number;
     percentageChange: number;
@@ -119,8 +119,8 @@ export function OurCardV2({
   period,
   action,
   icon: Icon,
-  iconColor = 'var(--primary)',
-  formatStyle = 'regular',
+  iconColor = "var(--primary)",
+  formatStyle = "regular",
   className,
   children,
   contentClassName,
@@ -130,7 +130,7 @@ export function OurCardV2({
 
   return (
     <Card
-      className={cn('flex flex-col justify-between', className)}
+      className={cn("flex flex-col justify-between", className)}
       asChild
       {...props}
     >
@@ -157,7 +157,7 @@ export function OurCardV2({
           </div>
           {action}
         </div>
-        <CardContent className={cn('space-y-1', contentClassName)}>
+        <CardContent className={cn("space-y-1", contentClassName)}>
           <CardTitle className="text-muted-foreground font-normal">
             {title}
           </CardTitle>
@@ -169,13 +169,13 @@ export function OurCardV2({
   );
 }
 
-interface OurCardCarouselProps extends ComponentProps<'div'> {
+interface OurCardCarouselProps extends ComponentProps<"div"> {
   title: string;
   period?: string;
   slides: ReactNode[];
   action?: ReactNode;
   contentClassName?: string;
-  size?: VariantProps<typeof cardContentVariants>['size'];
+  size?: VariantProps<typeof cardContentVariants>["size"];
   showDots?: boolean;
   loop?: boolean;
 }
@@ -206,11 +206,11 @@ export function OurCardCarousel({
       setCount(api.scrollSnapList().length);
     };
     onSelect();
-    api.on('select', onSelect);
-    api.on('reInit', onSelect);
+    api.on("select", onSelect);
+    api.on("reInit", onSelect);
     return () => {
-      api.off('select', onSelect);
-      api.off('reInit', onSelect);
+      api.off("select", onSelect);
+      api.off("reInit", onSelect);
     };
   }, [api]);
 
@@ -237,7 +237,7 @@ export function OurCardCarousel({
           <div className="w-full h-full">
             <Carousel
               setApi={setApi}
-              opts={{ align: 'start', loop }}
+              opts={{ align: "start", loop }}
               className="h-full w-full"
             >
               <CarouselContent className=" h-full items-start">
@@ -246,7 +246,7 @@ export function OurCardCarousel({
                     {React.cloneElement(slide as React.ReactElement<any>, {
                       className: cn(
                         (slide as React.ReactElement<any>).props?.className,
-                        'h-full w-full'
+                        "h-full w-full"
                       ),
                     })}
                   </CarouselItem>
@@ -259,8 +259,8 @@ export function OurCardCarousel({
                   <button
                     key={`dot-${i}`}
                     className={cn(
-                      'h-1.5 w-6 rounded-full bg-muted-foreground/30 transition-all',
-                      i === selectedIndex && 'w-8 bg-foreground/70'
+                      "h-1.5 w-6 rounded-full bg-muted-foreground/30 transition-all",
+                      i === selectedIndex && "w-8 bg-foreground/70"
                     )}
                     aria-label={`Go to slide ${i + 1}`}
                     onClick={() => api?.scrollTo(i)}
@@ -275,13 +275,13 @@ export function OurCardCarousel({
   );
 }
 
-interface OurCardTabsdProps extends ComponentProps<'div'> {
+interface OurCardTabsdProps extends ComponentProps<"div"> {
   title: string;
   period?: string;
   defaultValueTabs: string;
   action?: ReactNode;
   contentClassName?: string;
-  size?: VariantProps<typeof cardContentVariants>['size'];
+  size?: VariantProps<typeof cardContentVariants>["size"];
 }
 
 export function OurCardTabs({
@@ -355,8 +355,8 @@ interface OurCardActionsDropdownProps
   children?: React.ReactNode;
   icon?: IconType; // Dinamis: menerima ikon
   label?: string; // Dinamis: menerima label untuk trigger
-  variant?: ButtonVariantProps<typeof buttonVariants>['variant'];
-  size?: ButtonVariantProps<typeof buttonVariants>['size'];
+  variant?: ButtonVariantProps<typeof buttonVariants>["variant"];
+  size?: ButtonVariantProps<typeof buttonVariants>["size"];
   className?: string; // Dinamis: menerima className untuk kustomisasi
 }
 
@@ -364,9 +364,9 @@ export function OurCardActionsDropdown({
   children,
   icon: Icon = EllipsisVertical, // Default ikon jika tidak ada
   label,
-  variant = 'ghost',
-  size = 'icon',
-  className = '',
+  variant = "ghost",
+  size = "icon",
+  className = "",
   ...props
 }: OurCardActionsDropdownProps) {
   return (
@@ -374,7 +374,7 @@ export function OurCardActionsDropdown({
       <DropdownMenuTrigger
         aria-label={label}
         className={cn(
-          '-mt-2 -me-2',
+          "-mt-2 -me-2",
           buttonVariants({ variant: variant, size: size }),
           className // Menambahkan className dinamis
         )}
@@ -416,13 +416,13 @@ export function OurCardActionsTabs({
   tabsTriggerClassName,
 }: Props) {
   return (
-    <div className={cn('-mt-2 -me-2', className)}>
+    <div className={cn("-mt-2 -me-2", className)}>
       {/* Mobile: Select */}
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger
           id="view-selector"
           size="sm"
-          className={cn('flex w-fit md:hidden', selectTriggerClassName)}
+          className={cn("flex w-fit md:hidden", selectTriggerClassName)}
         >
           <SelectValue placeholder="Select a view" />
         </SelectTrigger>
@@ -437,7 +437,7 @@ export function OurCardActionsTabs({
 
       <TabsList
         className={cn(
-          'hidden md:flex bg-transparent border border-border',
+          "hidden md:flex bg-transparent border border-border",
           tabsListClassName
         )}
       >

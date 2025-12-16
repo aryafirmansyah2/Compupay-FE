@@ -63,10 +63,10 @@ const AppSidebar = () => {
                 <Image
                   src={logoSrc}
                   alt="logo"
-                  // width={state === "collapsed" ? 40 : 125}
-                  // height={state === "collapsed" ? 85 : 20}
-                  height={80}
-                  width={80}
+                  width={state === "collapsed" ? 40 : 125}
+                  height={state === "collapsed" ? 85 : 20}
+                  // height={80}
+                  // width={80}
                 />
               </Link>
             </SidebarMenuButton>

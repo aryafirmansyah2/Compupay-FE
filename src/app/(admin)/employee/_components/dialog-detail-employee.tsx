@@ -1,0 +1,151 @@
+"use client";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import CurrencyInput from "@/components/ui/currency-input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+
+const formSchema = z.object({
+  name: z.string().min(1),
+  email: z.string(),
+  employe_number: z.string().min(1),
+  job_title: z.string().min(1),
+  name_2198153691: z.string().min(1),
+  department: z.string(),
+  salary: z.int(),
+  status: z.string(),
+});
+
+interface StepItemCardProps {
+  children: React.ReactNode;
+}
+
+export default function DialogDetailEmployee({ children }: StepItemCardProps) {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      //   console.log(values);a
+      toast(
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
+        </pre>
+      );
+    } catch (error) {
+      console.error("Form submission error", error);
+      toast.error("Failed to submit the form. Please try again.");
+    }
+  }
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="sm:max-w-[625px]">
+        <DialogHeader>
+          <DialogTitle>Employee detail</DialogTitle>
+          <DialogDescription>
+            Make changes to your profile here. Click save when you&apos;re done.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex justify-between gap-4 border p-4 rounded-md">
+          <div className="flex gap-4 ">
+            <Avatar className="h-8 w-8 rounded-lg grayscale">
+              <AvatarImage src={"assets/images/user-1.png"} alt={"arya"} />
+              <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">{"Arya Firmansyah"}</span>
+              <span className="text-muted-foreground truncate text-xs">
+                {"aryafirmansyah@gmail.com"}
+              </span>
+            </div>
+          </div>
+          <Badge className="px-2.5 py-1.5 rounded-full bg-primary/10 border-primary text-primary">
+            {"Active"}
+          </Badge>
+        </div>
+        <div className="flex flex-col gap-6">
+          <p className="text-sm ">Employee Info</p>
+          <div className="grid grid-cols-2 gap-4 ">
+            <div>
+              <p className="text-muted-foreground text-xs">Employe number</p>
+              <small className="text-sm leading-none font-medium">
+                AO1DSGN193
+              </small>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Name </p>
+              <small className="text-sm leading-none font-medium">
+                Arya Firmansyah
+              </small>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Email </p>
+              <small className="text-sm leading-none font-medium">
+                aryafirmansyah@gmail.com
+              </small>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Job title </p>
+              <small className="text-sm leading-none font-medium">
+                UI/UX Designer
+              </small>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Department </p>
+              <small className="text-sm leading-none font-medium">
+                Creative
+              </small>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Join date </p>
+              <small className="text-sm leading-none font-medium">
+                24-02-2025
+              </small>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Salary </p>
+              <small className="text-sm leading-none font-medium">
+                Rp. 12,000,000
+              </small>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
