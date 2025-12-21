@@ -33,12 +33,6 @@ export const formSchema = z.object({
 
   departmentId: z.string().min(1, { message: "Department name is required" }),
 
-  level: z.array(
-    z.object({
-      id: z.string(),
-      text: z.string(),
-    })
-  ),
 });
 
 interface StepItemCardProps {
@@ -56,14 +50,14 @@ export default function DialogFormPosition({
 }: StepItemCardProps) {
   const [open, setOpen] = useState(false);
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null);
-  const initialLevel: Tag[] = [];
+  // const initialLevel: Tag[] = [];
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: type === "update" && data ? data.name : "",
       departmentId: type === "update" && data ? data.departmentId : "",
-      level: type === "update" && data ? data.level : initialLevel,
+      // level: type === "update" && data ? data.level : initialLevel,
     },
   });
 
@@ -73,7 +67,7 @@ export default function DialogFormPosition({
       form.reset({
         name: type === "update" && data ? data.name : "",
         departmentId: type === "update" && data ? data.departmentId : "",
-        level: type === "update" && data ? data.level : initialLevel,
+        // level: type === "update" && data ? data.level : initialLevel,
       });
     }
   }, [open, form, type, data]);
@@ -91,9 +85,6 @@ export default function DialogFormPosition({
         const response = await request.post("/position", {
           name: values.name,
           departmentId: values.departmentId,
-          levels: values.level.map((d) => ({
-            name: d?.text,
-          })),
         });
 
         if (response.data) {
@@ -109,9 +100,6 @@ export default function DialogFormPosition({
         const response = await request.put("/position/" + data.id, {
           name: values.name,
           departmentId: values.departmentId,
-          levels: values.level.map((d) => ({
-            name: d?.text,
-          })),
         });
 
         if (response.data) {
@@ -226,7 +214,7 @@ export default function DialogFormPosition({
                 </FormItem>
               )}
             />
-            <FormField
+            {/* <FormField
               control={form.control}
               name="level"
               render={({ field }) => (
@@ -249,7 +237,7 @@ export default function DialogFormPosition({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             <DialogFooter>
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>

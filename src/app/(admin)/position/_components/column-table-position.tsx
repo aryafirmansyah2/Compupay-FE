@@ -54,6 +54,7 @@ export const columns = (fetchData, onDelete) => [
     enableHiding: false,
     cell: ({ row }) => {
       const data = row.original;
+      console.log(data)
 
       return (
         <div className="flex gap-4">

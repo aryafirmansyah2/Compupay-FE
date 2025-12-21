@@ -74,24 +74,40 @@ export default function DepartmentPage() {
     return () => clearTimeout(delayDebounceFn); // Cleanup debounce on search change
   }, [search, fetchData]);
 
-  const handleDelete = (id: string, department: string): void => {
-    toast(
-      (t) => (
-        <DeleteToastConfirm
-          t={t}
-          itemName={department}
-          onConfirm={async () => {
+const handleDelete = (id: string, department: string): void => {
+  toast(
+    (t) => (
+      <DeleteToastConfirm
+        t={t}
+        itemName={department}
+        onConfirm={async () => {
+          try {
             await request.delete(`/department/${id}`, {});
+            toast.loading("Loading...");
+            toast.dismiss();
+            toast.success("Position deleted successfully", {duration : 1000, position: "top-right"});
             fetchData();
-          }}
-        />
-      ),
-      {
-        duration: 8000,
-        position: "top-center",
-      }
-    );
-  };
+          } catch (error: any) {
+            const message =
+              error?.response?.data?.message ||
+              "Failed to delete position";
+              toast.loading("Loading...");
+              toast.dismiss();  
+              toast.error(message, {duration : 1000, position: "top-right"});
+
+
+          }
+        }}
+      />
+    ),
+    {
+      duration: 2000,
+      position: "top-center",
+    }
+  );
+
+};
+
 
   const table = useReactTable({
     data,

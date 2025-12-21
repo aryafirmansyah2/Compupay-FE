@@ -1,10 +1,8 @@
 "use client";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,75 +17,121 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import CurrencyInput from "@/components/ui/currency-input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useFileUpload } from "@/hooks/use-file-upload";
 import { Textarea } from "@/components/ui/textarea";
+import toast from "react-hot-toast";
+import request from "@/utils/request";
 
-const formSchema = z.object({
-  name: z.string().min(1),
-  start_salary: z.number(),
-  end_salary: z.number(),
-  description: z.string().min(12),
+export const formSchema = z.object({
+  name: z.string().min(1, { message: "Allowance name is required" }),
+
+  description: z
+    .string()
+    .min(12, { message: "Description must be at least 12 characters long" }),
 });
 
 interface StepItemCardProps {
   type?: "update" | "create";
   children: React.ReactNode;
+  fetchData: () => void; // Function to fetch the latest data
+  data?: any;
 }
 
 export default function DialogFormAllowance({
   type,
   children,
+  data,
+  fetchData,
 }: StepItemCardProps) {
+  const [open, setOpen] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: type === "update" && data ? data.allowance : "",
+      description: type === "update" && data ? data.description : "",
+    },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  useEffect(() => {
+    if (!open) {
+      // Reset form values when modal is closed
+      form.reset({
+        name: type === "update" && data ? data.allowance : "",
+        description: type === "update" && data ? data.description : "",
+      });
+    }
+  }, [open, form, type, data]);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true);
+    toast.loading("Loading...");
+    toast.dismiss();
+
     try {
-      //   console.log(values);a
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
+      if (type === "create") {
+        // Call your API to create a new allowance
+        const response = await request.post("/allowances", {
+          allowance: values.name,
+          description: values.description,
+        });
+
+        if (response.data) {
+          toast.success("Allowance created successfully!", {
+            position: "top-center",
+            duration: 2000, // Ensure the toast is shown for 2 seconds
+          });
+
+          setOpen(false); // Close the modal after the toast has finished
+          fetchData(); // Fetch the latest data
+        }
+      } else if (type === "update") {
+        const response = await request.put("/allowances/" + data.id, {
+          allowance: values.name,
+          description: values.description,
+        });
+
+        if (response.data) {
+          toast.success("Allowance updated successfully!", {
+            position: "top-center",
+            duration: 2000, // Ensure the toast is shown for 2 seconds
+          });
+
+          setOpen(false); // Close the modal after the toast has finished
+          fetchData(); // Fetch the latest data
+        }
+      }
     } catch (error) {
       console.error("Form submission error", error);
       toast.error("Failed to submit the form. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
-    <Dialog>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <DialogTrigger asChild>{children}</DialogTrigger>
-          <DialogContent className="sm:max-w-[625px]">
-            <DialogHeader>
-              <DialogTitle>
-                {type == "create" ? "Create department" : "Update department"}
-              </DialogTitle>
-              <DialogDescription>
-                Make changes to your profile here. Click save when you&apos;re
-                done.
-              </DialogDescription>
-            </DialogHeader>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="sm:max-w-[625px]">
+        <DialogHeader>
+          <DialogTitle>
+            {type == "create" ? "Create allowance" : "Update allowance"}
+          </DialogTitle>
+          <DialogDescription>
+            Make changes to your profile here. Click save when you&apos;re done.
+          </DialogDescription>
+        </DialogHeader>
 
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
@@ -96,7 +140,7 @@ export default function DialogFormAllowance({
                   <FormLabel>Allowance name</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Input department name"
+                      placeholder="Input allowance name"
                       type="text"
                       {...field}
                     />
@@ -114,7 +158,7 @@ export default function DialogFormAllowance({
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Input description of department"
+                      placeholder="Input description of allowance"
                       className="resize-none"
                       {...field}
                     />
@@ -128,13 +172,13 @@ export default function DialogFormAllowance({
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
-              <Button type="submit">
+              <Button type="submit" disabled={isSubmitting}>
                 {type == "create" ? "Create" : "Update"}
               </Button>
             </DialogFooter>
-          </DialogContent>
-        </form>
-      </Form>
+          </form>
+        </Form>
+      </DialogContent>
     </Dialog>
   );
 }

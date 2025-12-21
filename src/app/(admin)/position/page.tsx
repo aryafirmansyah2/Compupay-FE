@@ -94,23 +94,33 @@ export default function PositionPage() {
   }, [search, fetchData]);
 
   const handleDelete = (id: string, department: string): void => {
-    toast(
-      (t) => (
-        <DeleteToastConfirm
-          t={t}
-          itemName={department}
-          onConfirm={async () => {
+  toast(
+    (t) => (
+      <DeleteToastConfirm
+        t={t}
+        itemName={department}
+        onConfirm={async () => {
+          try {
             await request.delete(`/position/${id}`, {});
+            toast.success("Position deleted successfully", {duration : 2000, position: "top-right"});
             fetchData();
-          }}
-        />
-      ),
-      {
-        duration: 8000,
-        position: "top-center",
-      }
-    );
-  };
+          } catch (error: any) {
+            const message =
+              error?.response?.data?.message ||
+              "Failed to delete position";
+
+            toast.error(message, {duration : 2000, position: "top-right"});
+          }
+        }}
+      />
+    ),
+    {
+      duration: 8000,
+      position: "top-center",
+    }
+  );
+};
+
 
   const table = useReactTable({
     data,

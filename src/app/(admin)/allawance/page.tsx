@@ -6,7 +6,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { ArrowDownToLine, ListFilterPlus, Plus, Search } from "lucide-react";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import DialogFormAllowance from "./_components/dialog-form-allowance";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,8 +33,10 @@ import { columnsEmployeeAllowance } from "./_components/column-table-employee-al
 // import { allowance, employeeAllowance } from "./_data/allawance";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataTablePagination } from "@/components/ui/data-table/data-table-pagination";
-import { allowance, employeeAllowance } from "./_data/allowance";
 import DialogFormEmployeeAllowance from "./_components/dialog-form-employee-allowance";
+import request from "@/utils/request";
+import toast from "react-hot-toast";
+import DeleteToastConfirm from "@/components/custom/our-toast";
 
 export default function AllowancePage() {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -43,6 +45,66 @@ export default function AllowancePage() {
   const [rowSelection, setRowSelection] = useState({});
 
   const [tabsValue, setTabsValue] = useState("employeeAllowance");
+
+  const [employeeAllowance, setEmployeeAllowance] = useState([]);
+  const [allowance, setAllowance] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      if (tabsValue === "employeeAllowance") {
+        const res = await request.get(`/employeeAllowance?search=${search}`);
+        // Check if the data has actually changed before updating the state
+        setEmployeeAllowance(res.data.data);
+      } else if (tabsValue === "allowance") {
+        const res = await request.get(`/allowances?search=${search}`);
+        // Check if the data has actually changed before updating the state
+        setAllowance(res.data.data);
+      }
+    } catch (err: any) {
+      setError(err.message || "Error fetching data");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [search, tabsValue]); // Use search as dependency to refetch when the search value changes
+
+  // UseEffect to trigger fetchData on search change
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchData();
+    }, 500); // Adding debounce delay of 500ms to avoid multiple calls while typing
+
+    return () => clearTimeout(delayDebounceFn); // Cleanup debounce on search change
+  }, [search, fetchData]);
+
+  useEffect(() => {
+    setSearch("");
+    tableEmployeeAllowance.setPageIndex(0);
+    tableAllowance.setPageIndex(0);
+  }, [tabsValue]);
+
+  const handleDelete = (id: string, allowance: string): void => {
+    toast(
+      (t) => (
+        <DeleteToastConfirm
+          t={t}
+          itemName={allowance}
+          onConfirm={async () => {
+            await request.delete(`/allowances/${id}`, {});
+            fetchData();
+          }}
+        />
+      ),
+      {
+        duration: 8000,
+        position: "top-center",
+      }
+    );
+  };
 
   const tableEmployeeAllowance = useReactTable({
     data: employeeAllowance, // Mengambil data berdasarkan tabsValue
@@ -66,7 +128,7 @@ export default function AllowancePage() {
 
   const tableAllowance = useReactTable({
     data: allowance, // Mengambil data berdasarkan tabsValue
-    columns: columnsAllowance,
+    columns: columnsAllowance(fetchData, handleDelete),
 
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -188,10 +250,7 @@ export default function AllowancePage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell
-                      colSpan={columnsAllowance.length}
-                      className="h-24 text-center"
-                    >
+                    <TableCell colSpan={3} className="h-24 text-center">
                       No results.
                     </TableCell>
                   </TableRow>
@@ -214,7 +273,11 @@ export default function AllowancePage() {
         action={
           <div className="flex gap-4">
             <InputGroup className="w-full">
-              <InputGroupInput placeholder="Search..." />
+              <InputGroupInput
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)} // Update search value
+              />
               <InputGroupAddon>
                 <Search />
               </InputGroupAddon>
@@ -229,7 +292,7 @@ export default function AllowancePage() {
               </DialogFormEmployeeAllowance>
             )}
             {tabsValue === "allowance" && (
-              <DialogFormAllowance type="create">
+              <DialogFormAllowance type="create" fetchData={fetchData}>
                 <Button variant="outline">
                   <Plus className="mr-2 h-4 w-4" />
                   Create Allowance

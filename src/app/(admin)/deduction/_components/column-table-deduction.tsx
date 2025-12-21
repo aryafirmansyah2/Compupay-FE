@@ -55,7 +55,7 @@ export const columnsDeduction = (fetchData, onDelete) => [
       const payment = row.original;
       return (
         <div className="flex gap-4">
-          <DialogDetailDeduction>
+          <DialogDetailDeduction data={payment}>
             <Button
               size={"icon"}
               variant={"outline"}

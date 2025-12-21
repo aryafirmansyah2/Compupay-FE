@@ -1,17 +1,13 @@
 "use client";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import {
-  ColumnDef,
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  Row,
   SortingState,
   useReactTable,
   VisibilityState,
@@ -21,10 +17,7 @@ import { Button } from "@/components/ui/button";
 import {
   InputGroup,
   InputGroupAddon,
-  InputGroupButton,
   InputGroupInput,
-  InputGroupText,
-  InputGroupTextarea,
 } from "@/components/ui/input-group";
 import {
   DropdownMenu,
@@ -42,15 +35,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   ArrowDownToLine,
-  ArrowUpDown,
   ChevronDown,
-  Edit,
-  Eye,
   ListFilterPlus,
-  MoreHorizontal,
   Plus,
   Search,
-  Trash,
 } from "lucide-react";
 import {
   Table,
@@ -62,268 +50,80 @@ import {
 } from "@/components/ui/table";
 
 import { DataTablePagination } from "@/components/ui/data-table/data-table-pagination";
-import { formatDate, formatNumberSocialMedia } from "@/lib/utils";
-import { ShowMoreText } from "@/components/ui/show-more-text";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Checkbox } from "@/components/ui/checkbox";
-import Link from "next/link";
 import DialogFormEmployee from "./_components/dialog-form-employee";
-import DialogDetailEmployee from "./_components/dialog-detail-employee";
-const data = [
-  {
-    id: "1",
-    profile_uri: "assets/images/user-1.png",
-    name: "Arya Firmansyah",
-    email: "aryafirmansyah@gmail.com",
-    employee_id: "AO1DSGN193",
-    job_title: "UI/UX Designer",
-    join_date: "24-12-2025",
-    status: "Active",
-    department: "Produksi",
-    position: "HRD",
-  },
-  {
-    id: "2",
-    profile_uri: "assets/images/user-2.png",
-    name: "Arya Firmansyah",
-    email: "aryafirmansyah@gmail.com",
-    employee_id: "AO1DSGN193",
-    job_title: "UI/UX Designer",
-    join_date: "24-12-2025",
-    status: "Active",
-    department: "Produksi",
-    position: "HRD",
-  },
-  {
-    id: "3",
-    profile_uri: "assets/images/user-3.png",
-    name: "Arya Firmansyah",
-    email: "aryafirmansyah@gmail.com",
-    employee_id: "AO1DSGN193",
-    job_title: "UI/UX Designer",
-    join_date: "24-12-2025",
-    status: "Active",
-    department: "Produksi",
-    position: "HRD",
-  },
-  {
-    id: "4",
-    profile_uri: "assets/images/user-4.png",
-    name: "Arya Firmansyah",
-    email: "aryafirmansyah@gmail.com",
-    employee_id: "AO1DSGN193",
-    job_title: "UI/UX Designer",
-    join_date: "24-12-2025",
-    status: "Active",
-    department: "Produksi",
-    position: "HRD",
-  },
-  {
-    id: "5",
-    profile_uri: "assets/images/user-5.png",
-    name: "Arya Firmansyah",
-    email: "aryafirmansyah@gmail.com",
-    employee_id: "AO1DSGN193",
-    job_title: "UI/UX Designer",
-    join_date: "24-12-2025",
-    status: "Active",
-    department: "Produksi",
-    position: "HRD",
-  },
-  {
-    id: "6",
-    profile_uri: "assets/images/user-1.png",
-    name: "Arya Firmansyah",
-    email: "aryafirmansyah@gmail.com",
-    employee_id: "AO1DSGN193",
-    job_title: "UI/UX Designer",
-    join_date: "24-12-2025",
-    status: "Active",
-    department: "Produksi",
-    position: "HRD",
-  },
-  {
-    id: "7",
-    profile_uri: "assets/images/user-2.png",
-    name: "Arya Firmansyah",
-    email: "aryafirmansyah@gmail.com",
-    employee_id: "AO1DSGN193",
-    job_title: "UI/UX Designer",
-    join_date: "24-12-2025",
-    status: "Active",
-    department: "Produksi",
-    position: "HRD",
-  },
-  {
-    id: "8",
-    profile_uri: "assets/images/user-3.png",
-    name: "Arya Firmansyah",
-    email: "aryafirmansyah@gmail.com",
-    employee_id: "AO1DSGN193",
-    job_title: "UI/UX Designer",
-    join_date: "24-12-2025",
-    status: "Active",
-    department: "Produksi",
-    position: "HRD",
-  },
-  {
-    id: "9",
-    profile_uri: "assets/images/user-4.png",
-    name: "Arya Firmansyah",
-    email: "aryafirmansyah@gmail.com",
-    employee_id: "AO1DSGN193",
-    job_title: "UI/UX Designer",
-    join_date: "24-12-2025",
-    status: "Active",
-    department: "Produksi",
-    position: "HRD",
-  },
-  {
-    id: "10",
-    profile_uri: "assets/images/user-5.png",
-    name: "Arya Firmansyah",
-    email: "aryafirmansyah@gmail.com",
-    employee_id: "AO1DSGN193",
-    job_title: "UI/UX Designer",
-    join_date: "24-12-2025",
-    status: "Active",
-    department: "Produksi",
-    position: "HRD",
-  },
-];
-
-export const columns = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
-    header: "Name of employee",
-    cell: ({ row }) => {
-      const { name, email, profile_uri } = row.original as {
-        name: string;
-        email: string;
-        profile_uri: string;
-      };
-      return (
-        <div className="flex gap-4">
-          <Avatar className="h-8 w-8 rounded-lg grayscale">
-            <AvatarImage src={profile_uri} alt={name} />
-            <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-          </Avatar>
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-medium">{name}</span>
-            <span className="text-muted-foreground truncate text-xs">
-              {email}
-            </span>
-          </div>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "employee_id",
-    header: "Employe ID",
-    cell: ({ row }) => <div className="">{row.getValue("employee_id")}</div>,
-  },
-  {
-    accessorKey: "job_title",
-    header: "Job title",
-    cell: ({ row }) => <div className="">{row.getValue("job_title")}</div>,
-  },
-  {
-    accessorKey: "department",
-    header: "Department",
-    cell: ({ row }) => (
-      <div className="lowercase">{row.getValue("department")}</div>
-    ),
-  },
-  {
-    accessorKey: "join_date",
-    header: "Join date",
-    cell: ({ row }) => (
-      <div className="lowercase">{row.getValue("join_date")}</div>
-    ),
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <Badge className="px-2.5 py-1.5 rounded-full bg-primary/10 border-primary text-primary">
-        {row.getValue("status")}
-      </Badge>
-    ),
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const payment = row.original;
-      const { id } = row.original as {
-        id: string;
-      };
-      return (
-        <div className="flex gap-4">
-          <DialogDetailEmployee>
-            <Button
-              size={"icon"}
-              variant={"outline"}
-              className="hover:text-primary"
-            >
-              <Eye />
-            </Button>
-          </DialogDetailEmployee>
-          <DialogFormEmployee type="update">
-            <Button
-              size={"icon"}
-              variant={"outline"}
-              className="hover:text-primary"
-            >
-              <Edit />
-            </Button>
-          </DialogFormEmployee>
-          <Button
-            size={"icon"}
-            variant={"outline"}
-            className="hover:text-primary"
-          >
-            <Trash />
-          </Button>
-        </div>
-      );
-    },
-  },
-];
+import { columns } from "./_components/column-table-employee";
+import request from "@/utils/request";
+import toast from "react-hot-toast";
+import DeleteToastConfirm from "@/components/custom/our-toast";
 
 export default function EmployeePage() {
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await request.get(`/user?search=${search}`);
+      // Check if the data has actually changed before updating the state
+      if (JSON.stringify(res.data.data) !== JSON.stringify(data)) {
+        setData(res.data.data);
+      }
+    } catch (err: any) {
+      setError(err.message || "Error fetching data");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [search]); // Use search as dependency to refetch when the search value changes
+
+  // UseEffect to trigger fetchData on search change
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchData();
+    }, 500); // Adding debounce delay of 500ms to avoid multiple calls while typing
+
+    return () => clearTimeout(delayDebounceFn); // Cleanup debounce on search change
+  }, [search, fetchData]);
+
+  const handleDelete = (id: string, department: string): void => {
+    toast(
+      (t) => (
+        <DeleteToastConfirm
+          t={t}
+          itemName={department}
+          onConfirm={async () => {
+            try {
+              await request.delete(`/user/${id}`, {});
+              toast.success("Position deleted successfully", {
+                duration: 2000,
+                position: "top-right",
+              });
+              fetchData();
+            } catch (error: any) {
+              const message =
+                error?.response?.data?.message || "Failed to delete position";
+
+              toast.error(message, { duration: 2000, position: "top-right" });
+            }
+          }}
+        />
+      ),
+      {
+        duration: 8000,
+        position: "top-center",
+      }
+    );
+  };
+
   const table = useReactTable({
     data,
-    columns,
+    columns: columns(fetchData, handleDelete),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -348,13 +148,17 @@ export default function EmployeePage() {
         action={
           <div className="flex gap-4">
             <InputGroup className="w-full">
-              <InputGroupInput placeholder="Search..." />
+              <InputGroupInput
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)} // Update search value
+              />
               <InputGroupAddon>
                 <Search />
               </InputGroupAddon>
               {/* <InputGroupAddon align="inline-end">12 results</InputGroupAddon> */}
             </InputGroup>
-            <DialogFormEmployee type="create">
+            <DialogFormEmployee type="create" fetchData={fetchData}>
               <Button variant="outline">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Employee

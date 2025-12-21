@@ -13,9 +13,13 @@ import { Badge } from "@/components/ui/badge";
 
 interface StepItemCardProps {
   children: React.ReactNode;
+  data: any;
 }
 
-export default function DialogDetailAllowance({ children }: StepItemCardProps) {
+export default function DialogDetailAllowance({
+  children,
+  data,
+}: StepItemCardProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -32,16 +36,13 @@ export default function DialogDetailAllowance({ children }: StepItemCardProps) {
           <div>
             <p className="text-muted-foreground text-xs">Allowance</p>
             <small className="text-sm leading-none font-medium">
-              Production
+              {data?.allowance}
             </small>
           </div>
           <div className="col-span-full">
             <p className="text-muted-foreground text-xs">Description </p>
             <small className="text-sm leading-none font-medium">
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industrys standard dummy text
-              ever since the 1500s, when an unknown printer took a galley of
-              type and scrambled it to make a type specimen book.
+              {data?.description}
             </small>
           </div>
           {/* </div> */}

@@ -4,7 +4,7 @@ import { Edit, Eye, Trash } from "lucide-react";
 import DialogFormAllowance from "./dialog-form-allowance";
 import DialogDetailAllowance from "./dialog-detail-allowance";
 
-export const columnsAllowance = [
+export const columnsAllowance = (fetchData, onDelete) => [
   {
     id: "select",
     header: ({ table }) => (
@@ -53,12 +53,9 @@ export const columnsAllowance = [
     enableHiding: false,
     cell: ({ row }) => {
       const payment = row.original;
-      const { id } = row.original as {
-        id: string;
-      };
       return (
         <div className="flex gap-4">
-          <DialogDetailAllowance>
+          <DialogDetailAllowance data={payment}>
             <Button
               size={"icon"}
               variant={"outline"}
@@ -67,7 +64,11 @@ export const columnsAllowance = [
               <Eye />
             </Button>
           </DialogDetailAllowance>
-          <DialogFormAllowance type="update">
+          <DialogFormAllowance
+            type="update"
+            fetchData={fetchData}
+            data={payment}
+          >
             <Button
               size={"icon"}
               variant={"outline"}
@@ -77,6 +78,7 @@ export const columnsAllowance = [
             </Button>
           </DialogFormAllowance>
           <Button
+            onClick={() => onDelete(payment.id)}
             size={"icon"}
             variant={"outline"}
             className="hover:text-primary"
