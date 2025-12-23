@@ -38,7 +38,12 @@ export const columns = (fetchData, onDelete) => [
       return (
         <div className="flex gap-4">
           <Avatar className="h-8 w-8 rounded-lg grayscale">
-            <AvatarImage src={profile_uri} alt={full_name} />
+            <AvatarImage
+              src={`http://localhost:3001/public/${
+                profile_uri || "default-avatar.png"
+              }`}
+              alt={full_name}
+            />
             <AvatarFallback className="rounded-lg">CN</AvatarFallback>
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
@@ -102,7 +107,7 @@ export const columns = (fetchData, onDelete) => [
       const payment = row.original;
       return (
         <div className="flex gap-4">
-          <DialogDetailEmployee>
+          <DialogDetailEmployee data={payment}>
             <Button
               size={"icon"}
               variant={"outline"}

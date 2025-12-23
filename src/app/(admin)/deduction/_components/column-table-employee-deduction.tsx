@@ -4,8 +4,9 @@ import { Edit, Eye, Trash } from "lucide-react";
 import DialogFormEmployeeDeduction from "./dialog-form-employee-deduction";
 import DialogDetailEmployeeDeduction from "./dialog-detail-employee-deduction";
 import { formatCurrency } from "@/components/ui/currency-input";
+import { format } from "date-fns";
 
-export const columnsEmployeeDeduction = [
+export const columnsEmployeeDeduction = (fetchData, handleDelete) => [
   {
     id: "select",
     header: ({ table }) => (
@@ -29,22 +30,18 @@ export const columnsEmployeeDeduction = [
     enableHiding: false,
   },
   {
-    accessorKey: "employee",
+    accessorKey: "users",
     header: "Employee name",
     cell: ({ row }) => {
-      const { employee } = row.original as {
-        employee: { name: string };
-      };
-      return <span className="truncate font-medium">{employee.name}</span>;
+      const { users } = row.original;
+      return <span className="truncate font-medium">{users.full_name}</span>;
     },
   },
   {
     accessorKey: "deduction",
     header: "Deduction",
     cell: ({ row }) => {
-      const { deduction } = row.original as {
-        deduction: { deduction: string };
-      };
+      const { deduction } = row.original;
       return (
         <span className="truncate font-medium">{deduction.deduction}</span>
       );
@@ -64,9 +61,7 @@ export const columnsEmployeeDeduction = [
     accessorKey: "amount",
     header: "Amount",
     cell: ({ row }) => {
-      const { amount } = row.original as {
-        amount: number;
-      };
+      const { amount } = row.original;
       return (
         <span className="truncate font-medium">
           Rp {formatCurrency(amount.toString())}
@@ -75,13 +70,15 @@ export const columnsEmployeeDeduction = [
     },
   },
   {
-    accessorKey: "effectiveDate",
+    accessorKey: "effective_date",
     header: "Effective date",
     cell: ({ row }) => {
-      const { effectiveDate } = row.original as {
-        effectiveDate: string;
-      };
-      return <span className="truncate font-medium">{effectiveDate}</span>;
+      const { effective_date } = row.original;
+      return (
+        <span className="truncate font-medium">
+          {format(effective_date, "dd-MM-yyyy")}
+        </span>
+      );
     },
   },
 
@@ -104,7 +101,11 @@ export const columnsEmployeeDeduction = [
               <Eye />
             </Button>
           </DialogDetailEmployeeDeduction>
-          <DialogFormEmployeeDeduction type="update">
+          <DialogFormEmployeeDeduction
+            type="update"
+            data={payment}
+            fetchData={fetchData}
+          >
             <Button
               size={"icon"}
               variant={"outline"}
@@ -117,6 +118,7 @@ export const columnsEmployeeDeduction = [
             size={"icon"}
             variant={"outline"}
             className="hover:text-primary"
+            onClick={() => handleDelete(id)}
           >
             <Trash />
           </Button>

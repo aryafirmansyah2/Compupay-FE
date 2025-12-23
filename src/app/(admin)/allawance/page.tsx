@@ -108,7 +108,7 @@ export default function AllowancePage() {
 
   const tableEmployeeAllowance = useReactTable({
     data: employeeAllowance, // Mengambil data berdasarkan tabsValue
-    columns: columnsEmployeeAllowance,
+    columns: columnsEmployeeAllowance(fetchData, handleDelete),
 
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -284,7 +284,7 @@ export default function AllowancePage() {
               {/* <InputGroupAddon align="inline-end">12 results</InputGroupAddon> */}
             </InputGroup>
             {tabsValue === "employeeAllowance" && (
-              <DialogFormEmployeeAllowance type="create">
+              <DialogFormEmployeeAllowance type="create" fetchData={fetchData}>
                 <Button variant="outline">
                   <Plus className="mr-2 h-4 w-4" />
                   Create Employee Allowance

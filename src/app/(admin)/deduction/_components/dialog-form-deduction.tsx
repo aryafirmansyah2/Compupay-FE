@@ -23,7 +23,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import CurrencyInput from "@/components/ui/currency-input";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import request from "@/utils/request";

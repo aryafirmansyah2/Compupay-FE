@@ -1,13 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Edit, Eye, Trash } from "lucide-react";
-import DialogFormAllowance from "./dialog-form-allowance";
-import DialogDetailAllowance from "./dialog-detail-allowance";
 import DialogFormEmployeeAllowance from "./dialog-form-employee-allowance";
 import DialogDetailEmployeeAllowance from "./dialog-detail-employee-allowance";
 import { formatCurrency } from "@/components/ui/currency-input";
+import { format } from "date-fns";
 
-export const columnsEmployeeAllowance = [
+export const columnsEmployeeAllowance = (fetchData, handleDelete) => [
   {
     id: "select",
     header: ({ table }) => (
@@ -31,22 +30,18 @@ export const columnsEmployeeAllowance = [
     enableHiding: false,
   },
   {
-    accessorKey: "employee",
+    accessorKey: "users",
     header: "Employee name",
     cell: ({ row }) => {
-      const { employee } = row.original as {
-        employee: { name: string };
-      };
-      return <span className="truncate font-medium">{employee.name}</span>;
+      const { users } = row.original;
+      return <span className="truncate font-medium">{users.full_name}</span>;
     },
   },
   {
     accessorKey: "allowance",
     header: "Allowance",
     cell: ({ row }) => {
-      const { allowance } = row.original as {
-        allowance: { allowance: string };
-      };
+      const { allowance } = row.original;
       return (
         <span className="truncate font-medium">{allowance.allowance}</span>
       );
@@ -66,9 +61,7 @@ export const columnsEmployeeAllowance = [
     accessorKey: "amount",
     header: "Amount",
     cell: ({ row }) => {
-      const { amount } = row.original as {
-        amount: number;
-      };
+      const { amount } = row.original;
       return (
         <span className="truncate font-medium">
           Rp {formatCurrency(amount.toString())}
@@ -77,13 +70,15 @@ export const columnsEmployeeAllowance = [
     },
   },
   {
-    accessorKey: "effectiveDate",
+    accessorKey: "effective_date",
     header: "Effective date",
     cell: ({ row }) => {
-      const { effectiveDate } = row.original as {
-        effectiveDate: string;
-      };
-      return <span className="truncate font-medium">{effectiveDate}</span>;
+      const { effective_date } = row.original;
+      return (
+        <span className="truncate font-medium">
+          {format(effective_date, "dd-MM-yyyy")}
+        </span>
+      );
     },
   },
 
@@ -106,7 +101,11 @@ export const columnsEmployeeAllowance = [
               <Eye />
             </Button>
           </DialogDetailEmployeeAllowance>
-          <DialogFormEmployeeAllowance type="update">
+          <DialogFormEmployeeAllowance
+            type="update"
+            data={payment}
+            fetchData={fetchData}
+          >
             <Button
               size={"icon"}
               variant={"outline"}
@@ -119,6 +118,7 @@ export const columnsEmployeeAllowance = [
             size={"icon"}
             variant={"outline"}
             className="hover:text-primary"
+            onClick={() => handleDelete(id)}
           >
             <Trash />
           </Button>

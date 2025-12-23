@@ -41,21 +41,11 @@ export const columns = (fetchData, onDelete) => [
     },
   },
   {
-    accessorKey: "position",
-    header: "Count position",
+    accessorKey: "description",
+    header: "Description",
     cell: ({ row }) => {
-      const { position } = row.original as {
-        position: Array<string>;
-      };
-      return (
-        <div className="flex gap-2">
-          {position?.map((item) => (
-            <Badge key={item} className="truncate font-medium">
-              {item}
-            </Badge>
-          )) ?? 0}
-        </div>
-      );
+      const { description } = row.original;
+      return <div>{description}</div>;
     },
   },
   {

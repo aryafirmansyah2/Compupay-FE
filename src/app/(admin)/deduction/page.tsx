@@ -94,7 +94,12 @@ export default function DeductionPage() {
           t={t}
           itemName={deduction}
           onConfirm={async () => {
-            await request.delete(`/deduction/${id}`, {});
+            if (tabsValue === "employeeDeduction") {
+              await request.delete(`/employeeDeduction/${id}`, {});
+            } else if (tabsValue === "deduction") {
+              await request.delete(`/deduction/${id}`, {});
+            }
+
             fetchData();
           }}
         />
@@ -108,7 +113,7 @@ export default function DeductionPage() {
 
   const tableEmployeeDeduction = useReactTable({
     data: employeeDeduction, // Mengambil data berdasarkan tabsValue
-    columns: columnsEmployeeDeduction,
+    columns: columnsEmployeeDeduction(fetchData, handleDelete),
 
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -284,7 +289,7 @@ export default function DeductionPage() {
               {/* <InputGroupAddon align="inline-end">12 results</InputGroupAddon> */}
             </InputGroup>
             {tabsValue === "employeeDeduction" && (
-              <DialogFormEmployeeDeduction type="create">
+              <DialogFormEmployeeDeduction type="create" fetchData={fetchData}>
                 <Button variant="outline">
                   <Plus className="mr-2 h-4 w-4" />
                   Create Employee Deduction

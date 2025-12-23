@@ -50,9 +50,13 @@ const formSchema = z.object({
 
 interface StepItemCardProps {
   children: React.ReactNode;
+  data?: any;
 }
 
-export default function DialogDetailEmployee({ children }: StepItemCardProps) {
+export default function DialogDetailEmployee({
+  children,
+  data,
+}: StepItemCardProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
@@ -84,7 +88,12 @@ export default function DialogDetailEmployee({ children }: StepItemCardProps) {
         <div className="flex justify-between gap-4 border p-4 rounded-md">
           <div className="flex gap-4 ">
             <Avatar className="h-8 w-8 rounded-lg grayscale">
-              <AvatarImage src={"assets/images/user-1.png"} alt={"arya"} />
+              <AvatarImage
+                src={`http://localhost:3001/public/${
+                  data.profile_uri || "default-avatar.png"
+                }`}
+                alt={"arya"}
+              />
               <AvatarFallback className="rounded-lg">CN</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
@@ -102,45 +111,45 @@ export default function DialogDetailEmployee({ children }: StepItemCardProps) {
           <p className="text-sm ">Employee Info</p>
           <div className="grid grid-cols-2 gap-4 ">
             <div>
-              <p className="text-muted-foreground text-xs">Employe number</p>
+              <p className="text-muted-foreground text-xs">Employee number</p>
               <small className="text-sm leading-none font-medium">
-                AO1DSGN193
+                {data.employee_number}
               </small>
             </div>
             <div>
               <p className="text-muted-foreground text-xs">Name </p>
               <small className="text-sm leading-none font-medium">
-                Arya Firmansyah
+                {data.full_name}
               </small>
             </div>
             <div>
               <p className="text-muted-foreground text-xs">Email </p>
               <small className="text-sm leading-none font-medium">
-                aryafirmansyah@gmail.com
-              </small>
-            </div>
-            <div>
-              <p className="text-muted-foreground text-xs">Job title </p>
-              <small className="text-sm leading-none font-medium">
-                UI/UX Designer
+                {data.email}
               </small>
             </div>
             <div>
               <p className="text-muted-foreground text-xs">Department </p>
               <small className="text-sm leading-none font-medium">
-                Creative
+                {data.department.name}
+              </small>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Position </p>
+              <small className="text-sm leading-none font-medium">
+                {data.position.name}
               </small>
             </div>
             <div>
               <p className="text-muted-foreground text-xs">Join date </p>
               <small className="text-sm leading-none font-medium">
-                24-02-2025
+                {data.join_date}
               </small>
             </div>
             <div>
               <p className="text-muted-foreground text-xs">Salary </p>
               <small className="text-sm leading-none font-medium">
-                Rp. 12,000,000
+                {`Rp ${data.salary.toLocaleString("id-ID")}`}
               </small>
             </div>
           </div>

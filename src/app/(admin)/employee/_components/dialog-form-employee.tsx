@@ -683,10 +683,12 @@ export default function DialogFormUser({
 
       if (type === "create") {
         await request.post("/user", formData, {
-          headers: "multipart/form-data",
+          headers: { "Content-Type": "multipart/form-data" },
         });
       } else {
-        await request.put(`/user/${data.id}`, formData);
+        await request.put(`/user/${data.id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       }
 
       toast.success("User saved", { id: loading });

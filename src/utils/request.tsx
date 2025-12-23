@@ -7,7 +7,7 @@ const request = axios.create({
   timeout: 60000 * 5,
   withCredentials: true,
   headers: {
-    "Content-Type": "application/json",
+    // "Content-Type": "application/json",
     // "Access-Control-Allow-Origin": "*",
     // "Access-Control-Allow-Headers": "*",
     // "Access-Control-Allow-Credentials": "true",
@@ -63,7 +63,7 @@ request.interceptors.response.use(
 export default {
   get: (url: string, params?: any, headers = {}) =>
     request({ method: "get", url, params, headers }),
-  post: (url: string, data: any, headers = {}) =>
+  post: (url: string, data: any, headers?: any) =>
     request({ method: "post", url, data, headers }),
   put: (url: string, data: any, headers?: any) =>
     request({ method: "put", url, data, headers }),
