@@ -36,6 +36,7 @@ import {
 import CurrencyInput from "@/components/ui/currency-input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -143,7 +144,7 @@ export default function DialogDetailEmployee({
             <div>
               <p className="text-muted-foreground text-xs">Join date </p>
               <small className="text-sm leading-none font-medium">
-                {data.join_date}
+                {format(data.join_date, "dd-MM-yyyy")}
               </small>
             </div>
             <div>

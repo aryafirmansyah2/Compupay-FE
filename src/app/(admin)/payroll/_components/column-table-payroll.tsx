@@ -4,8 +4,9 @@ import { Edit, Eye, Trash } from "lucide-react";
 import DialogFormPayroll from "./dialog-form-payroll";
 import DialogDetailPayroll from "./dialog-detail-payroll";
 import { formatCurrency } from "@/components/ui/currency-input";
+import { format } from "date-fns";
 
-export const columnsPayroll = [
+export const columns = (fetchData, onDelete) => [
   {
     id: "select",
     header: ({ table }) => (
@@ -29,23 +30,47 @@ export const columnsPayroll = [
     enableHiding: false,
   },
   {
-    accessorKey: "reff_no",
+    accessorKey: "ref_no",
     header: "Reff No",
     cell: ({ row }) => {
-      const { payroll } = row.original as {
-        payroll: { ref_no: string };
-      };
-      return <span className="truncate font-medium">{payroll.ref_no}</span>;
+      const data = row.original;
+      return <span className="truncate font-medium">{data.ref_no}</span>;
+    },
+  },
+  {
+    accessorKey: "date_from",
+    header: "Date From",
+    cell: ({ row }) => {
+      const data = row.original;
+      return (
+        <span className="truncate font-medium">{`${format(
+          data.date_from,
+          "dd-mm-yyyy"
+        )}`}</span>
+      );
+    },
+  },
+  {
+    accessorKey: "date_to",
+    header: "Date To",
+    cell: ({ row }) => {
+      const data = row.original;
+      return (
+        <span className="truncate font-medium">{`${format(
+          data.date_to,
+          "dd-mm-yyyy"
+        )}`}</span>
+      );
     },
   },
   {
     accessorKey: "Emplloyee",
     header: "employee",
     cell: ({ row }) => {
-      const { employee } = row.original as {
-        employee: { name: string };
-      };
-      return <span className="truncate font-medium">{employee.name}</span>;
+      const data = row.original;
+      return (
+        <span className="truncate font-medium">{data.employee.full_name}</span>
+      );
     },
   },
 
@@ -53,12 +78,10 @@ export const columnsPayroll = [
     accessorKey: "salary",
     header: "Salary",
     cell: ({ row }) => {
-      const { salary } = row.original as {
-        salary: number;
-      };
+      const data = row.original;
       return (
         <span className="truncate font-medium">
-          Rp {formatCurrency(String(salary))}
+          Rp {formatCurrency(data.employee.salary)}
         </span>
       );
     },
@@ -67,12 +90,10 @@ export const columnsPayroll = [
     accessorKey: "allowance_amount",
     header: "Allowance",
     cell: ({ row }) => {
-      const { allowance_amount } = row.original as {
-        allowance_amount: number;
-      };
+      const data = row.original;
       return (
         <span className="truncate font-medium">
-          Rp {formatCurrency(String(allowance_amount))}
+          Rp {formatCurrency(data.allowance_amount)}
         </span>
       );
     },
@@ -81,12 +102,10 @@ export const columnsPayroll = [
     accessorKey: "deduction_amount",
     header: "Deduction",
     cell: ({ row }) => {
-      const { deduction_amount } = row.original as {
-        deduction_amount: number;
-      };
+      const data = row.original;
       return (
         <span className="truncate font-medium">
-          Rp {formatCurrency(String(deduction_amount))}
+          Rp {formatCurrency(data.deductions)}
         </span>
       );
     },
@@ -95,12 +114,10 @@ export const columnsPayroll = [
     accessorKey: "net",
     header: "Net",
     cell: ({ row }) => {
-      const { net } = row.original as {
-        net: number;
-      };
+      const data = row.original;
       return (
         <span className="truncate font-medium">
-          Rp {formatCurrency(String(net))}
+          Rp {formatCurrency(data.net)}
         </span>
       );
     },
@@ -110,10 +127,8 @@ export const columnsPayroll = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original;
-      const { id } = row.original as {
-        id: string;
-      };
+      const data = row.original;
+
       return (
         <div className="flex gap-4">
           <DialogDetailPayroll>
@@ -125,7 +140,7 @@ export const columnsPayroll = [
               <Eye />
             </Button>
           </DialogDetailPayroll>
-          <DialogFormPayroll type="update">
+          <DialogFormPayroll type="update" fetchData={fetchData} data={data}>
             <Button
               size={"icon"}
               variant={"outline"}
@@ -138,6 +153,7 @@ export const columnsPayroll = [
             size={"icon"}
             variant={"outline"}
             className="hover:text-primary"
+            onClick={() => onDelete(data.id)}
           >
             <Trash />
           </Button>

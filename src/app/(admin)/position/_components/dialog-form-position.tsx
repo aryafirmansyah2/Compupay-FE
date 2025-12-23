@@ -26,13 +26,11 @@ import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
 import request from "@/utils/request";
 import Combobox from "@/components/ui/combobox";
-import { Tag, TagInput } from "emblor";
 
 export const formSchema = z.object({
   name: z.string().min(1, { message: "Position name is required" }),
 
-  departmentId: z.string().min(1, { message: "Department name is required" }),
-
+  department_id: z.string().min(1, { message: "Department name is required" }),
 });
 
 interface StepItemCardProps {
@@ -56,7 +54,7 @@ export default function DialogFormPosition({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: type === "update" && data ? data.name : "",
-      departmentId: type === "update" && data ? data.departmentId : "",
+      department_id: type === "update" && data ? data.department_id : "",
       // level: type === "update" && data ? data.level : initialLevel,
     },
   });
@@ -66,7 +64,7 @@ export default function DialogFormPosition({
       // Reset form values when modal is closed
       form.reset({
         name: type === "update" && data ? data.name : "",
-        departmentId: type === "update" && data ? data.departmentId : "",
+        department_id: type === "update" && data ? data.department_id : "",
         // level: type === "update" && data ? data.level : initialLevel,
       });
     }
@@ -84,7 +82,7 @@ export default function DialogFormPosition({
         // Call your API to create a new department
         const response = await request.post("/position", {
           name: values.name,
-          departmentId: values.departmentId,
+          department_id: values.department_id,
         });
 
         if (response.data) {
@@ -99,7 +97,7 @@ export default function DialogFormPosition({
       } else if (type === "update") {
         const response = await request.put("/position/" + data.id, {
           name: values.name,
-          departmentId: values.departmentId,
+          department_id: values.department_id,
         });
 
         if (response.data) {
@@ -195,7 +193,7 @@ export default function DialogFormPosition({
             />
             <FormField
               control={form.control}
-              name="departmentId"
+              name="department_id"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Department</FormLabel>

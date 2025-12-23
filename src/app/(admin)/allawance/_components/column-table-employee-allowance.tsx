@@ -92,7 +92,7 @@ export const columnsEmployeeAllowance = (fetchData, handleDelete) => [
       };
       return (
         <div className="flex gap-4">
-          <DialogDetailEmployeeAllowance>
+          <DialogDetailEmployeeAllowance data={payment}>
             <Button
               size={"icon"}
               variant={"outline"}

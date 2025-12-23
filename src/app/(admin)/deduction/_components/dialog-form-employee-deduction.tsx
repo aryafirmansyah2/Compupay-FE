@@ -142,7 +142,7 @@ export default function DialogFormEmployeeDeduction({
       fetchData();
       form.reset();
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Submit failed", {
+      toast.error(err?.response?.data?.errors?.message || "Submit failed", {
         id: loading,
       });
     }
