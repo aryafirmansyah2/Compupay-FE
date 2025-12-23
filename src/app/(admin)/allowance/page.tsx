@@ -321,16 +321,14 @@ export default function AllowancePage() {
                 </TabsTrigger>
               ))}
             </TabsList>
-            <div className="flex gap-4">
+            {/* <div className="flex gap-4">
               <Button variant="outline">
                 <ListFilterPlus className="mr-2 h-4 w-4" /> Filter
-                {/* Icon with margin-right */}
               </Button>
               <Button variant="outline">
                 <ArrowDownToLine className="mr-2 h-4 w-4" /> Export
-                {/* Icon with margin-right */}
               </Button>
-            </div>
+            </div> */}
           </div>
 
           {tabs.map((tab) => (

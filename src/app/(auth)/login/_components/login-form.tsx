@@ -54,9 +54,10 @@ const LoginForm = () => {
 
       if (response.data) {
         Cookies.set("token", response.data.data.access_token);
+        Cookies.set("role", response.data.data.role);
         toast.dismiss();
         toast.success("Success Login", { position: "top-center" });
-        router.push("/overview");
+        router.push("/employee");
       }
     } catch (error: any) {
       // Check if the error has a response object

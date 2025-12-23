@@ -1,12 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Edit, Eye, Trash } from "lucide-react";
-import DialogFormPayroll from "./dialog-form-payroll";
 
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import DialogDetailSalarySlip from "./dialog-detail-salary-slip";
 import { formatCurrency } from "@/components/ui/currency-input";
 import { format } from "date-fns";
-import DialogDetailPayroll from "./dialog-detail-payroll";
-import { Badge } from "@/components/ui/badge";
 
 export const columns = (fetchData, onDelete) => [
   {
@@ -124,7 +123,7 @@ export const columns = (fetchData, onDelete) => [
       );
     },
   },
-  
+
   {
     accessorKey: "status",
     header: "Status",
@@ -146,7 +145,7 @@ export const columns = (fetchData, onDelete) => [
 
       return (
         <div className="flex gap-4">
-          <DialogDetailPayroll data={data}>
+          <DialogDetailSalarySlip data={data}>
             <Button
               size={"icon"}
               variant={"outline"}
@@ -154,24 +153,7 @@ export const columns = (fetchData, onDelete) => [
             >
               <Eye />
             </Button>
-          </DialogDetailPayroll>
-          <DialogFormPayroll type="update" fetchData={fetchData} data={data}>
-            <Button
-              size={"icon"}
-              variant={"outline"}
-              className="hover:text-primary"
-            >
-              <Edit />
-            </Button>
-          </DialogFormPayroll>
-          <Button
-            size={"icon"}
-            variant={"outline"}
-            className="hover:text-primary"
-            onClick={() => onDelete(data.id)}
-          >
-            <Trash />
-          </Button>
+          </DialogDetailSalarySlip>
         </div>
       );
     },

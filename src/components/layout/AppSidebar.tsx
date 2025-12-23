@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { routeGroups } from "@/config/routes";
 import { usePathname } from "next/navigation";
+import Cookies from "js-cookie";
+import { useMemo } from "react";
 
 const AppSidebar = () => {
   const pathname = usePathname();
@@ -53,6 +55,32 @@ const AppSidebar = () => {
         ? "/assets/logo/logo-v2.png"
         : "/assets/logo/logo-v2.png";
   }
+
+  const userRole = Cookies.get("role");
+
+  // 2. Filter Menu Berdasarkan Role
+  const filteredNavMain = useMemo(() => {
+    return routeGroups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item: any) => {
+          // Jika item tidak punya batasan role, tampilkan
+          if (!item.roles) return true;
+          // Tampilkan jika role user ada di dalam daftar roles menu
+          return item.roles.includes(userRole);
+        }),
+      }))
+      .filter((group) => group.items.length > 0); // Sembunyikan grup jika kosong
+  }, [userRole]);
+
+  // 3. Update Handle Logout
+  const handleLogout = () => {
+    Cookies.remove("token", { path: "/" });
+    Cookies.remove("refresh_token", { path: "/" });
+    Cookies.remove("role", { path: "/" }); // Pastikan role juga dihapus
+
+    window.location.href = "/login";
+  };
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="py-4">
@@ -74,7 +102,7 @@ const AppSidebar = () => {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {routeGroups.map((item) => (
+        {filteredNavMain.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent className="space-y-1">
@@ -113,7 +141,9 @@ const AppSidebar = () => {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem>Account</DropdownMenuItem>
                 <DropdownMenuItem>Setting</DropdownMenuItem>
-                <DropdownMenuItem>Sign out</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleLogout()}>
+                  Sign out
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

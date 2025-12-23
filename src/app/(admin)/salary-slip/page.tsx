@@ -50,17 +50,18 @@ import {
 } from "@/components/ui/table";
 
 import { DataTablePagination } from "@/components/ui/data-table/data-table-pagination";
-import DialogFormEmployee from "./_components/dialog-form-employee";
-import { columns } from "./_components/column-table-employee";
+import { columns } from "./_components/column-table-salary-slip";
+import DeleteToastConfirm from "@/components/custom/our-toast";
 import request from "@/utils/request";
 import toast from "react-hot-toast";
-import DeleteToastConfirm from "@/components/custom/our-toast";
 
-export default function EmployeePage() {
+export default function PositionPage() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const [search, setSearch] = useState("");
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -70,7 +71,9 @@ export default function EmployeePage() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await request.get(`/user?search=${search}`);
+      const res = await request.get(
+        `/payroll/history/employee?search=${search}`
+      );
       // Check if the data has actually changed before updating the state
       if (JSON.stringify(res.data.data) !== JSON.stringify(data)) {
         setData(res.data.data);
@@ -99,7 +102,7 @@ export default function EmployeePage() {
           itemName={department}
           onConfirm={async () => {
             try {
-              await request.delete(`/user/${id}`, {});
+              await request.delete(`/position/${id}`, {});
               toast.success("Position deleted successfully", {
                 duration: 2000,
                 position: "top-right",
@@ -139,11 +142,10 @@ export default function EmployeePage() {
       rowSelection,
     },
   });
-
   return (
     <section className=" grid gap-4  md:grid-cols-3  w-full">
       <OurCard
-        title="Employee"
+        title="Salary Slip"
         descTitle="Make changes to your profile here. Click save when you're done."
         action={
           <div className="flex gap-4">
@@ -156,19 +158,22 @@ export default function EmployeePage() {
               <InputGroupAddon>
                 <Search />
               </InputGroupAddon>
-              {/* <InputGroupAddon align="inline-end">12 results</InputGroupAddon> */}
             </InputGroup>
-            <DialogFormEmployee type="create" fetchData={fetchData}>
-              <Button variant="outline">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Employee
-              </Button>
-            </DialogFormEmployee>
           </div>
         }
         size="fill"
         className="col-span-full md:col-span-3"
       >
+        <div className="flex items-center justify-between">
+          {/* <div className="flex gap-4">
+            <Button variant="outline">
+              <ListFilterPlus className="mr-2 h-4 w-4" /> Filter
+            </Button>
+            <Button variant="outline">
+              <ArrowDownToLine className="mr-2 h-4 w-4" /> Export
+            </Button>
+          </div> */}
+        </div>
         <div className="overflow-hidden rounded-md border">
           <Table className="table-auto">
             <TableHeader>
@@ -208,10 +213,7 @@ export default function EmployeePage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
+                  <TableCell colSpan={5} className="h-24 text-center">
                     No results.
                   </TableCell>
                 </TableRow>
@@ -220,8 +222,6 @@ export default function EmployeePage() {
           </Table>
         </div>
         <DataTablePagination table={table} />
-        {/* <ActionTable />
-        <ContentPerformanceTable data={contentPerformance} /> */}
       </OurCard>
     </section>
   );
