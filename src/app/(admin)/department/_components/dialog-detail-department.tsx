@@ -24,9 +24,6 @@ export default function DialogDetailDepartment({
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
           <DialogTitle>Department detail</DialogTitle>
-          <DialogDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
-          </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-6">

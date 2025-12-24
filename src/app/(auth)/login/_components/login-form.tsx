@@ -26,7 +26,11 @@ import {
 import { Input } from "@/components/ui/input";
 import request from "@/utils/request";
 
-const LoginForm = () => {
+interface LoginFormProps {
+  onForgotPassword: () => void;
+}
+
+const LoginForm = ({ onForgotPassword }: LoginFormProps) => {
   const router = useRouter();
 
   const FormSchema = z.object({
@@ -95,16 +99,14 @@ const LoginForm = () => {
       </CardHeader>
       <CardContent className="p-0">
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="w-full max-w-xs space-y-6"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Field Email */}
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-white">Email</FormLabel>
                   <FormControl>
                     <Input placeholder="Email address" {...field} />
                   </FormControl>
@@ -112,19 +114,21 @@ const LoginForm = () => {
                 </FormItem>
               )}
             />
+            {/* Field Password */}
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-center">
-                    <FormLabel>Password</FormLabel>
-                    <a
-                      href="#"
-                      className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="text-white">Password</FormLabel>
+                    <button
+                      type="button"
+                      onClick={onForgotPassword}
+                      className="text-xs text-white/70 underline underline-offset-4 hover:text-white"
                     >
                       Forgot your password?
-                    </a>
+                    </button>
                   </div>
                   <FormControl>
                     <Input type="password" {...field} />
@@ -133,7 +137,6 @@ const LoginForm = () => {
                 </FormItem>
               )}
             />
-
             <Button type="submit" className="w-full">
               Login
             </Button>

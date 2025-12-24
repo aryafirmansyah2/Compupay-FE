@@ -8,7 +8,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-
 interface StepItemCardProps {
   children: React.ReactNode;
   data?: any;
@@ -24,9 +23,6 @@ export default function DialogDetailSalarySlip({
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
           <DialogTitle>salary-slip detail</DialogTitle>
-          <DialogDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
-          </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-6">
           <p className="text-sm ">salary-slip Info</p>

@@ -27,7 +27,8 @@ import {
 import { routeGroups } from "@/config/routes";
 import { usePathname } from "next/navigation";
 import Cookies from "js-cookie";
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import request from "@/utils/request";
 
 const AppSidebar = () => {
   const pathname = usePathname();
@@ -81,6 +82,35 @@ const AppSidebar = () => {
 
     window.location.href = "/login";
   };
+
+  const [isLoading, setIsLoading] = useState<boolean>();
+  const [error, setError] = useState<any>();
+  const [data, setData] = useState<any>();
+
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await request.get(`/auth/me`);
+      setData(res.data.data);
+    } catch (err: any) {
+      setError(err.message || "Error fetching data");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []); // Use search as dependency to refetch when the search value changes
+
+  // UseEffect to trigger fetchData on search change
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchData();
+    }, 500); // Adding debounce delay of 500ms to avoid multiple calls while typing
+
+    return () => clearTimeout(delayDebounceFn); // Cleanup debounce on search change
+  }, [fetchData]);
+
+  // console.log(data);
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="py-4">
@@ -135,12 +165,15 @@ const AppSidebar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
-                  <User2 /> John Doe <ChevronUp className="ml-auto" />
+                  <User2 /> {data?.full_name} <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Account</DropdownMenuItem>
-                <DropdownMenuItem>Setting</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => (window.location.href = "/profile")}
+                >
+                  Profile
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleLogout()}>
                   Sign out
                 </DropdownMenuItem>

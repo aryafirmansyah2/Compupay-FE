@@ -164,11 +164,8 @@ export default function DialogFormPosition({
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
           <DialogTitle>
-            {type == "create" ? "Create department" : "Update department"}
+            {type == "create" ? "Create position" : "Update position"}
           </DialogTitle>
-          <DialogDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
-          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>

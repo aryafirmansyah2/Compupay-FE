@@ -27,9 +27,6 @@ export default function DialogDetailEmployeeAllowance({
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
           <DialogTitle>Allowance Employee detail</DialogTitle>
-          <DialogDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
-          </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-6">
           <p className="text-sm ">Allowance Employee Info</p>

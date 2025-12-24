@@ -74,40 +74,38 @@ export default function DepartmentPage() {
     return () => clearTimeout(delayDebounceFn); // Cleanup debounce on search change
   }, [search, fetchData]);
 
-const handleDelete = (id: string, department: string): void => {
-  toast(
-    (t) => (
-      <DeleteToastConfirm
-        t={t}
-        itemName={department}
-        onConfirm={async () => {
-          try {
-            await request.delete(`/department/${id}`, {});
-            toast.loading("Loading...");
-            toast.dismiss();
-            toast.success("Position deleted successfully", {duration : 1000, position: "top-right"});
-            fetchData();
-          } catch (error: any) {
-            const message =
-              error?.response?.data?.message ||
-              "Failed to delete position";
+  const handleDelete = (id: string, department: string): void => {
+    toast(
+      (t) => (
+        <DeleteToastConfirm
+          t={t}
+          itemName={department}
+          onConfirm={async () => {
+            try {
+              await request.delete(`/department/${id}`, {});
               toast.loading("Loading...");
-              toast.dismiss();  
-              toast.error(message, {duration : 1000, position: "top-right"});
-
-
-          }
-        }}
-      />
-    ),
-    {
-      duration: 2000,
-      position: "top-center",
-    }
-  );
-
-};
-
+              toast.dismiss();
+              toast.success("Position deleted successfully", {
+                duration: 1000,
+                position: "top-right",
+              });
+              fetchData();
+            } catch (error: any) {
+              const message =
+                error?.response?.data?.message || "Failed to delete position";
+              toast.loading("Loading...");
+              toast.dismiss();
+              toast.error(message, { duration: 1000, position: "top-right" });
+            }
+          }}
+        />
+      ),
+      {
+        duration: 2000,
+        position: "top-center",
+      }
+    );
+  };
 
   const table = useReactTable({
     data,
@@ -132,7 +130,6 @@ const handleDelete = (id: string, department: string): void => {
     <section className=" grid gap-4  md:grid-cols-3  w-full">
       <OurCard
         title="Department"
-        descTitle="Make changes to your profile here. Click save when you're done."
         action={
           <div className="flex gap-4">
             <InputGroup className="w-full">

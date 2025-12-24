@@ -274,7 +274,6 @@ export default function DeductionPage() {
     <section className=" grid gap-4  md:grid-cols-3  w-full">
       <OurCard
         title="Deduction"
-        descTitle="Make changes to your profile here. Click save when you're done."
         action={
           <div className="flex gap-4">
             <InputGroup className="w-full">

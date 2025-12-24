@@ -15,7 +15,7 @@ export function Footer() {
             rel="noopener noreferrer"
             className={cn(buttonVariants({ variant: "link" }), "inline p-0")}
           >
-            N4P
+            Compay
           </a>
           .
         </p>
@@ -26,7 +26,7 @@ export function Footer() {
             rel="noopener noreferrer"
             className={cn(buttonVariants({ variant: "link" }), "inline p-0")}
           >
-            Nevmock.id
+            Kelompok 5
           </a>
           .
         </p>

@@ -13,19 +13,19 @@ import { Badge } from "@/components/ui/badge";
 
 interface StepItemCardProps {
   children: React.ReactNode;
-  data: any
+  data: any;
 }
 
-export default function DialogDetailDeduction({ children, data }: StepItemCardProps) {
+export default function DialogDetailDeduction({
+  children,
+  data,
+}: StepItemCardProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
           <DialogTitle>Deduction detail</DialogTitle>
-          <DialogDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
-          </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-6">
           <p className="text-sm ">Deduction Info</p>

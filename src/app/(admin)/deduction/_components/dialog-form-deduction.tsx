@@ -124,9 +124,6 @@ export default function DialogFormDeduction({
           <DialogTitle>
             {type == "create" ? "Create deduction" : "Update deduction"}
           </DialogTitle>
-          <DialogDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
-          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>

@@ -308,10 +308,7 @@ export default function DialogFormPayroll({
                       </label>
                     </RadioGroup>
                   </FormControl>
-                  <FormDescription className="max-w-xs w-full ">
-                    Lorem Ipsum is simply dummy text of the printing and
-                    typesetting industry.
-                  </FormDescription>
+
                   <FormMessage />
                 </FormItem>
               )}

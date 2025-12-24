@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { LogOut, Moon, Settings, Sun, User } from 'lucide-react';
-import Link from 'next/link';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,11 +10,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { useTheme } from 'next-themes';
-import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
-import { Separator } from '@/components/ui/separator';
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { useTheme } from "next-themes";
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
@@ -31,7 +31,7 @@ const Navbar = () => {
       </Button> */}
         {/* RIGHT */}
         <div className="flex items-center gap-4">
-          <Link href="/">Dashboard</Link>
+          {/* <Link href="/">Dashboard</Link> */}
           {/* THEME MENU */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -42,19 +42,19 @@ const Navbar = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme('light')}>
+              <DropdownMenuItem onClick={() => setTheme("light")}>
                 Light
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('dark')}>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
                 Dark
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('system')}>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
                 System
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           {/* USER MENU */}
-          <DropdownMenu>
+          {/* <DropdownMenu>
             <DropdownMenuTrigger>
               <Avatar>
                 <AvatarImage src="https://avatars.githubusercontent.com/u/1486366" />
@@ -77,7 +77,7 @@ const Navbar = () => {
                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
         </div>
       </nav>
       <Separator className="bg-sidebar-border border-[0.5px] w-full" />

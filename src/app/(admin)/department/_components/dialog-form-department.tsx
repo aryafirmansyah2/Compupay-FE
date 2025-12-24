@@ -151,9 +151,6 @@ export default function DialogFormDepartment({
           <DialogTitle>
             {type == "create" ? "Create department" : "Update department"}
           </DialogTitle>
-          <DialogDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
-          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>

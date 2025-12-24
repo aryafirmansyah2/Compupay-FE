@@ -6,7 +6,7 @@ export default function Page() {
   const router = useRouter();
 
   React.useEffect(() => {
-    router.replace("/overview");
+    router.replace("/employee");
   }, [router]);
 
   return null;

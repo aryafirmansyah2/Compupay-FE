@@ -82,9 +82,6 @@ export default function DialogDetailEmployee({
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
           <DialogTitle>Employee detail</DialogTitle>
-          <DialogDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
-          </DialogDescription>
         </DialogHeader>
         <div className="flex justify-between gap-4 border p-4 rounded-md">
           <div className="flex gap-4 ">

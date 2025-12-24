@@ -160,10 +160,6 @@ export default function DialogFormEmployeeAllowance({
                   ? "Create employee allowance"
                   : "Update employee allowance"}
               </DialogTitle>
-              <DialogDescription>
-                Make changes to your profile here. Click save when you&apos;re
-                done.
-              </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-6">
@@ -303,10 +299,7 @@ export default function DialogFormEmployeeAllowance({
                       </label>
                     </RadioGroup>
                   </FormControl>
-                  <FormDescription className="max-w-xs w-full ">
-                    Lorem Ipsum is simply dummy text of the printing and
-                    typesetting industry.
-                  </FormDescription>
+
                   <FormMessage />
                 </FormItem>
               )}
