@@ -4,6 +4,12 @@ import { Footer } from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { cookies } from "next/headers";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Compay",
+  description: "Hr and Payroll Management System",
+};
 
 export default async function RootLayout({
   children,
