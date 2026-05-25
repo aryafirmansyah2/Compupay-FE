@@ -23,6 +23,7 @@ import {
   BanknoteArrowDown,
   CircleDollarSign,
   CalendarCheck2,
+  FileText,
 } from "lucide-react";
 import Cookies from "js-cookie";
 
@@ -90,6 +91,12 @@ export const routeGroups: TRouteGroup[] = [
         title: "Attendance",
         url: "/attendance",
         icon: CalendarCheck2,
+        roles: ["SUPER_ADMIN", "ADMIN"],
+      },
+      {
+        title: "Surat Izin",
+        url: "/leave-request",
+        icon: FileText,
         roles: ["SUPER_ADMIN", "ADMIN"],
       },
     ],
