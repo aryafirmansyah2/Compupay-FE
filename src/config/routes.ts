@@ -22,6 +22,7 @@ import {
   BanknoteArrowUp,
   BanknoteArrowDown,
   CircleDollarSign,
+  CalendarCheck2,
 } from "lucide-react";
 import Cookies from "js-cookie";
 
@@ -83,6 +84,13 @@ export const routeGroups: TRouteGroup[] = [
         url: "/salary-slip",
         icon: CircleDollarSign,
         roles: ["USER"],
+      },
+
+      {
+        title: "Attendance",
+        url: "/attendance",
+        icon: CalendarCheck2,
+        roles: ["SUPER_ADMIN", "ADMIN"],
       },
     ],
   },
