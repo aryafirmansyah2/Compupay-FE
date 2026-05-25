@@ -1,6 +1,7 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
 
+import React, { useCallback, useEffect, useState } from "react";
+import Cookies from "js-cookie";
 import {
   ColumnFiltersState,
   flexRender,
@@ -12,34 +13,18 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
+import { Plus, Search } from "lucide-react";
+import toast from "react-hot-toast";
+
 import { OurCard } from "@/components/custom/our-card";
+import DeleteToastConfirm from "@/components/custom/our-toast";
 import { Button } from "@/components/ui/button";
+import { DataTablePagination } from "@/components/ui/data-table/data-table-pagination";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  ArrowDownToLine,
-  ChevronDown,
-  ListFilterPlus,
-  Plus,
-  Search,
-} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -48,68 +33,112 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import request from "@/utils/request";
 
-import { DataTablePagination } from "@/components/ui/data-table/data-table-pagination";
 import DialogFormPayroll from "./_components/dialog-form-payroll";
 import { columns } from "./_components/column-table-payroll";
-import request from "@/utils/request";
-import toast from "react-hot-toast";
-import DeleteToastConfirm from "@/components/custom/our-toast";
 
 export default function PayrollPage() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
+  const role = Cookies.get("role");
+  const isUser = role === "USER";
+
+  const buildPayrollUrl = useCallback(() => {
+    const currentRole = Cookies.get("role");
+    const userId = Cookies.get("user_id");
+
+    let url = "/payroll/?getAll=true";
+
+    if (search.trim()) {
+      url += `&search=${encodeURIComponent(search.trim())}`;
+    }
+
+    if (currentRole === "USER") {
+      if (!userId || userId === "undefined" || userId === "null") {
+        return null;
+      }
+
+      url += `&filter[user_id]=${encodeURIComponent(userId)}`;
+    }
+
+    return url;
+  }, [search]);
+
   const fetchData = useCallback(async () => {
     setIsLoading(true);
-    setError(null);
+
     try {
-      const res = await request.get(`/payroll?search=${search}`);
-      // Check if the data has actually changed before updating the state
-      if (JSON.stringify(res.data.data) !== JSON.stringify(data)) {
-        setData(res.data.data);
+      const url = buildPayrollUrl();
+
+      if (!url) {
+        setData([]);
+
+        toast.error("User ID tidak ditemukan. Silakan login ulang.", {
+          duration: 2000,
+          position: "top-right",
+        });
+
+        return;
       }
-    } catch (err: any) {
-      setError(err.message || "Error fetching data");
+
+      const res = await request.get(url);
+
+      setData(res.data.data || []);
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.errors?.message ||
+        "Failed to fetch payroll";
+
+      toast.error(message, {
+        duration: 2000,
+        position: "top-right",
+      });
     } finally {
       setIsLoading(false);
     }
-  }, [search]); // Use search as dependency to refetch when the search value changes
+  }, [buildPayrollUrl]);
 
-  // UseEffect to trigger fetchData on search change
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       fetchData();
-    }, 500); // Adding debounce delay of 500ms to avoid multiple calls while typing
+    }, 500);
 
-    return () => clearTimeout(delayDebounceFn); // Cleanup debounce on search change
-  }, [search, fetchData]);
+    return () => clearTimeout(delayDebounceFn);
+  }, [fetchData]);
 
-  const handleDelete = (id: string, department: string): void => {
+  const handleDelete = (id: string, payrollName: string): void => {
     toast(
       (t) => (
         <DeleteToastConfirm
           t={t}
-          itemName={department}
+          itemName={payrollName}
           onConfirm={async () => {
             try {
               await request.delete(`/payroll/${id}`, {});
+
               toast.success("Payroll deleted successfully", {
                 duration: 2000,
                 position: "top-right",
               });
+
               fetchData();
             } catch (error: any) {
               const message =
-                error?.response?.data?.message || "Failed to delete position";
+                error?.response?.data?.message || "Failed to delete payroll";
 
-              toast.error(message, { duration: 2000, position: "top-right" });
+              toast.error(message, {
+                duration: 2000,
+                position: "top-right",
+              });
             }
           }}
         />
@@ -117,7 +146,7 @@ export default function PayrollPage() {
       {
         duration: 8000,
         position: "top-center",
-      }
+      },
     );
   };
 
@@ -141,7 +170,7 @@ export default function PayrollPage() {
   });
 
   return (
-    <section className=" grid gap-4  md:grid-cols-3  w-full">
+    <section className="grid w-full gap-4 md:grid-cols-3">
       <OurCard
         title="Payroll"
         action={
@@ -150,56 +179,56 @@ export default function PayrollPage() {
               <InputGroupInput
                 placeholder="Search..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)} // Update search value
+                onChange={(e) => setSearch(e.target.value)}
               />
               <InputGroupAddon>
                 <Search />
               </InputGroupAddon>
-              {/* <InputGroupAddon align="inline-end">12 results</InputGroupAddon> */}
             </InputGroup>
-            <DialogFormPayroll type="create" fetchData={fetchData}>
-              <Button variant="outline">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Payroll
-              </Button>
-            </DialogFormPayroll>
+
+            {!isUser && (
+              <DialogFormPayroll type="create" fetchData={fetchData}>
+                <Button variant="outline">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Payroll
+                </Button>
+              </DialogFormPayroll>
+            )}
           </div>
         }
         size="fill"
         className="col-span-full md:col-span-3"
       >
-        <div className="flex items-center justify-between">
-          {/* <div className="flex gap-4">
-            <Button variant="outline">
-              <ListFilterPlus className="mr-2 h-4 w-4" /> Filter
-            </Button>
-            <Button variant="outline">
-              <ArrowDownToLine className="mr-2 h-4 w-4" /> Export
-            </Button>
-          </div> */}
-        </div>
         <div className="overflow-hidden rounded-md border">
           <Table className="table-auto">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  ))}
                 </TableRow>
               ))}
             </TableHeader>
+
             <TableBody>
-              {table.getRowModel().rows?.length ? (
+              {isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns(fetchData, handleDelete).length}
+                    className="h-24 text-center"
+                  >
+                    Loading payroll...
+                  </TableCell>
+                </TableRow>
+              ) : table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
@@ -209,7 +238,7 @@ export default function PayrollPage() {
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}
@@ -218,7 +247,7 @@ export default function PayrollPage() {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={columns(fetchData, handleDelete).length}
                     className="h-24 text-center"
                   >
                     No results.
@@ -228,9 +257,8 @@ export default function PayrollPage() {
             </TableBody>
           </Table>
         </div>
+
         <DataTablePagination table={table} />
-        {/* <ActionTable />
-        <ContentPerformanceTable data={contentPerformance} /> */}
       </OurCard>
     </section>
   );

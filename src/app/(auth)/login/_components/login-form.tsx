@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import request from "@/utils/request";
+import { decodeJwtPayload } from "@/utils/decode-jwt";
 
 interface LoginFormProps {
   onForgotPassword: () => void;
@@ -57,11 +58,30 @@ const LoginForm = ({ onForgotPassword }: LoginFormProps) => {
       });
 
       if (response.data) {
-        Cookies.set("token", response.data.data.access_token);
-        Cookies.set("role", response.data.data.role);
+        const user = response.data.data;
+
+        const accessToken = user.access_token;
+        const decodedToken = decodeJwtPayload(accessToken);
+
+        Cookies.set("token", accessToken);
+        Cookies.set("refresh_token", user.refresh_token);
+        Cookies.set("role", user.role);
+        Cookies.set("position", user.position);
+
+        if (decodedToken?.id) {
+          Cookies.set("user_id", decodedToken.id);
+        }
+
         toast.dismiss();
-        toast.success("Success Login", { position: "top-center" });
-        router.push("/employee");
+        toast.success("Success Login", {
+          position: "top-center",
+        });
+
+        if (user.role === "USER") {
+          router.push("/payroll");
+        } else {
+          router.push("/employee");
+        }
       }
     } catch (error: any) {
       // Check if the error has a response object
