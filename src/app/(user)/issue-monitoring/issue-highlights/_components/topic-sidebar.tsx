@@ -1,107 +1,97 @@
-'use client';
-import { OurCard, OurCardActionsDropdown } from '@/components/custom/our-card';
-import { OurToggle } from '@/components/custom/our-toggle';
-import { Badge } from '@/components/ui/badge';
-import { CardDescription, CardTitle } from '@/components/ui/card';
-import { CalendarDatePicker } from '@/components/ui/date-range-picker';
-import { Input } from '@/components/ui/input';
-import { cn, formatCardValue } from '@/lib/utils';
-import { File, Search } from 'lucide-react';
-import React from 'react';
-import { topic } from '../_data/topic';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import Link from 'next/link';
+"use client";
+import { OurCard, OurCardActionsDropdown } from "@/components/custom/our-card";
+import { CardDescription, CardTitle } from "@/components/ui/card";
+import { CalendarDatePicker } from "@/components/ui/date-range-picker";
+import { Input } from "@/components/ui/input";
+import { cn, formatValue } from "@/lib/utils";
+import { File, Search } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import Link from "next/link";
+import request from "@/utils/request";
+import z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
-// export default function TopicSidebar() {
-//   const [toggleProxy, setToggleProxy] = React.useState('opposition');
+const formatDate = (date: Date) => {
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+};
 
-//   return (
-//     <OurCard
-//       title="List Topic"
-//       period="Saturday, December 23, 2025"
-//       action={<OurCardActionsDropdown />}
-//       size="fill"
-//       // className="max-w-[360px]"
-//       contentClassName="justify-start h-[calc(100vh-234px)] gap-4  "
-//     >
-//       {/* Sticky wrapper */}
-//       <div className="sticky top-0 z-10 bg-card flex flex-col gap-2 ">
-//         <CalendarDatePicker
-//           align="start"
-//           date={{ to: new Date(), from: new Date() }}
-//           onDateSelect={({ from, to }) => {}}
-//           variant="outline"
-//           closeOnSelect={true}
-//         />
-
-//         <div className="relative flex items-center">
-//           <Input
-//             type="text"
-//             placeholder="Search..."
-//             className={cn(
-//               'w-full pl-10 pr-3 rounded-md bg-muted/50 text-muted-foreground'
-//             )}
-//           />
-//           <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
-//         </div>
-
-//         <OurToggle
-//           options={[
-//             { value: 'opposition', label: 'Opposition' },
-//             { value: 'coalition', label: 'Coalition' },
-//             { value: 'independent', label: 'Independent' },
-//           ]}
-//           value={toggleProxy}
-//           onChange={setToggleProxy}
-//           placeholder="Choose an option"
-//           className="w-full"
-//         />
-//       </div>
-
-//       {/* Scrollable content */}
-//       <ScrollArea className="h-[calc(100vh-5.5rem)] md:h-[calc(100vh-12.5rem)]">
-//         {topic &&
-//           topic.map((item, index) => (
-//             <OurCard
-//               key={index}
-//               title={item.topic}
-//               period={`${formatCardValue(
-//                 item.countMentions,
-//                 'regular'
-//               )} Mentions`}
-//               size="fill"
-//               icon={File}
-//               onClick={() => {}}
-//             >
-//               <div className="flex justify-between ">
-//                 <div>
-//                   <CardDescription>Positif</CardDescription>
-//                   <CardTitle>
-//                     {formatCardValue(item.positiveMentions, 'regular')}
-//                   </CardTitle>
-//                 </div>
-//                 <div>
-//                   <CardDescription>Negative</CardDescription>
-//                   <CardTitle>
-//                     {formatCardValue(item.negativeMentions, 'regular')}
-//                   </CardTitle>
-//                 </div>
-//                 <div>
-//                   <CardDescription>Netral</CardDescription>
-//                   <CardTitle>
-//                     {formatCardValue(item.netralMentions, 'regular')}
-//                   </CardTitle>
-//                 </div>
-//               </div>
-//             </OurCard>
-//           ))}
-//       </ScrollArea>
-//     </OurCard>
-//   );
-// }
+const FormSchema = z.object({
+  calendar: z.object({
+    from: z.date(), // Bisa Date atau undefined
+    to: z.date().optional(), // Bisa Date atau undefined
+  }),
+});
 
 export default function TopicSidebar() {
-  const [toggleProxy, setToggleProxy] = React.useState('opposition');
+  const [dataTopic, setDataTopic] = useState<any>({ data: [] });
+  const [selectedDates, setSelectedDates] = useState<{
+    from: Date | undefined;
+    to: Date | undefined;
+  }>({
+    from: new Date(), // Awalnya undefined
+    to: undefined, // Awalnya undefined
+  });
+
+  const [loading, setLoading] = useState<boolean>(false); // Add loading state
+
+  const fetchDataTopic = async (
+    fromDate: Date | undefined,
+    toDate: Date | undefined
+  ) => {
+    try {
+      setLoading(true); // Start loading
+      // Kirim permintaan tanpa tanggal jika fromDate atau toDate adalah undefined
+      const res = await request.get(
+        `/issue-monitoring/topics?start_date=${
+          fromDate ? formatDate(fromDate) : ""
+        }&end_date=${toDate ? formatDate(toDate) : ""}`
+      );
+      console.log(res.data);
+      setDataTopic(res.data);
+    } catch (err) {
+      console.error("Gagal fetch data perencanaan:", err);
+      toast.error("Failed to fetch data!");
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
+
+  useEffect(() => {
+    // Fetch data topic with the initial dates
+    fetchDataTopic(selectedDates.from, selectedDates.to);
+  }, [selectedDates]);
+
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      calendar: {
+        from: new Date(),
+        to: undefined,
+      },
+    },
+  });
+
+  const onSubmit = (data: z.infer<typeof FormSchema>) => {
+    const { from, to } = data.calendar;
+    // Update state selectedDates hanya jika from dan to ada (tidak undefined)
+    setSelectedDates({ from: from ?? undefined, to: to ?? undefined });
+  };
 
   return (
     <OurCard
@@ -110,85 +100,110 @@ export default function TopicSidebar() {
       action={<OurCardActionsDropdown />}
       size="fill"
       contentClassName="justify-start gap-4"
+      className="h-[calc(100vh-150px)]"
     >
       {/* Sticky wrapper */}
       <div className="sticky top-0 z-10 bg-card flex flex-col gap-2 py-2">
-        <CalendarDatePicker
-          align="start"
-          date={{ to: new Date(), from: new Date() }}
-          onDateSelect={({ from, to }) => {}}
-          variant="outline"
-          closeOnSelect={true}
-        />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="flex flex-col gap-4">
+              <FormField
+                control={form.control}
+                name="calendar"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-md font-normal">
+                      Date Range
+                    </FormLabel>
+                    <FormControl className="w-full">
+                      <CalendarDatePicker
+                        date={field.value}
+                        onDateSelect={({ from, to }) => {
+                          form.setValue("calendar", { from, to });
+                        }}
+                        variant="outline"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <Button variant="default" type="submit" className="w-full">
+              Submit
+            </Button>
+          </form>
+        </Form>
 
         <div className="relative flex items-center">
           <Input
             type="text"
             placeholder="Search..."
             className={cn(
-              'w-full pl-10 pr-3 rounded-md bg-muted/50 text-muted-foreground'
+              "w-full pl-10 pr-3 rounded-md bg-muted/50 text-muted-foreground"
             )}
           />
           <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
         </div>
-
-        <OurToggle
-          options={[
-            { value: 'opposition', label: 'Opposition' },
-            { value: 'coalition', label: 'Coalition' },
-            { value: 'independent', label: 'Independent' },
-          ]}
-          value={toggleProxy}
-          onChange={setToggleProxy}
-          placeholder="Choose an option"
-          className="w-full"
-        />
       </div>
-
-      {/* Scrollable content */}
-      <ScrollArea className="h-[calc(100vh-15rem)] md:h-[calc(100vh-26rem)] overflow-auto">
-        <ul className="flex flex-col gap-4">
-          {topic &&
-            topic.map((item, index) => (
-              <Link
-                key={index}
-                href={`/issue-monitoring/issue-highlights/${item.id}`}
-              >
-                <OurCard
-                  title={item.topic}
-                  period={`${formatCardValue(
-                    item.countMentions,
-                    'regular'
-                  )} Mentions`}
-                  size="fill"
-                  icon={File}
-                  onClick={() => {}}
+      {loading ? (
+        <div className="flex justify-center items-center h-full ">
+          <Spinner variant={"default"} size={32} />
+          <span className="ml-4 text-muted-foreground font-medium">
+            Load Data
+          </span>
+        </div>
+      ) : (
+        <ScrollArea className="h-[calc(100vh-470px)] overflow-auto">
+          <ul className="flex flex-col gap-4">
+            {dataTopic.data &&
+              dataTopic.data.map((item, index) => (
+                <Link
+                  key={index}
+                  href={`/issue-monitoring/issue-highlights/${item.id}`}
                 >
-                  <div className="flex justify-between ">
-                    <div>
-                      <CardDescription>Positif</CardDescription>
-                      <CardTitle>
-                        {formatCardValue(item.positiveMentions, 'regular')}
-                      </CardTitle>
+                  <OurCard
+                    title={item.name}
+                    period={`${formatValue(item.count, "regular")} Mentions`}
+                    size="fill"
+                    icon={File}
+                    onClick={() => {}}
+                  >
+                    <div className="flex justify-between ">
+                      <div>
+                        <CardDescription>Positif</CardDescription>
+                        <CardTitle>
+                          {formatValue(
+                            Number(item.sentimen.positive),
+                            "regular"
+                          )}
+                        </CardTitle>
+                      </div>
+                      <div>
+                        <CardDescription>Negative</CardDescription>
+                        <CardTitle>
+                          {formatValue(
+                            Number(item.sentimen.negative),
+                            "regular"
+                          )}
+                        </CardTitle>
+                      </div>
+                      <div>
+                        <CardDescription>Netral</CardDescription>
+                        <CardTitle>
+                          {formatValue(
+                            Number(item.sentimen.neutral),
+                            "regular"
+                          )}
+                        </CardTitle>
+                      </div>
                     </div>
-                    <div>
-                      <CardDescription>Negative</CardDescription>
-                      <CardTitle>
-                        {formatCardValue(item.negativeMentions, 'regular')}
-                      </CardTitle>
-                    </div>
-                    <div>
-                      <CardDescription>Netral</CardDescription>
-                      <CardTitle>
-                        {formatCardValue(item.netralMentions, 'regular')}
-                      </CardTitle>
-                    </div>
-                  </div>
-                </OurCard>
-              </Link>
-            ))}
-        </ul>
-      </ScrollArea>
+                  </OurCard>
+                </Link>
+              ))}
+          </ul>
+        </ScrollArea>
+      )}
     </OurCard>
   );
 }

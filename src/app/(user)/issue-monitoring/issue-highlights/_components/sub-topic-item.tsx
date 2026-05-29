@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
-import { cn, formatCardValue } from '@/lib/utils';
+import { cn, formatValue } from '@/lib/utils';
 
 const avatarColor = [
   'border-yellow-400 dark:border-yellow-500',
@@ -57,7 +57,7 @@ export function SubTopicItem({
         <div className="flex-1 flex items-center justify-between ">
           <h3 className="text-xs font-semibold ">{subTopic}</h3>
           <p className="text-xs text-muted-foreground font-semibold ">
-            {formatCardValue(countMantions, 'regular') + ' '}{' '}
+            {formatValue(countMantions, 'regular') + ' '}{' '}
             <span className="font-normal">/ Mentions</span>
           </p>
         </div>

@@ -3,18 +3,18 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-} from 'lucide-react';
+} from "lucide-react";
 
-import type { Table } from '@tanstack/react-table';
+import type { Table } from "@tanstack/react-table";
 
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
@@ -26,7 +26,7 @@ export function DataTablePagination<TData>({
   return (
     <div className="flex flex-col items-center justify-between gap-2 py-4 md:flex-row">
       <div className="flex-1 text-sm text-muted-foreground">
-        {table.getFilteredSelectedRowModel().rows.length} of{' '}
+        {table.getFilteredSelectedRowModel().rows.length} of{" "}
         {table.getFilteredRowModel().rows.length} row(s) selected.
       </div>
       <div className="flex items-center gap-x-6">
@@ -40,8 +40,8 @@ export function DataTablePagination<TData>({
           >
             <SelectTrigger
               className={
-                (buttonVariants({ variant: 'outline', size: 'sm' }),
-                'h-8 w-fit gap-x-2 bg-background hover:bg-accent')
+                (buttonVariants({ variant: "outline", size: "sm" }),
+                "h-8 w-fit gap-x-2 bg-background hover:bg-accent")
               }
             >
               <SelectValue placeholder={table.getState().pagination.pageSize} />
@@ -56,7 +56,7 @@ export function DataTablePagination<TData>({
           </Select>
         </div>
         <div className="flex items-center justify-center text-sm font-medium">
-          Page {table.getState().pagination.pageIndex + 1} of{' '}
+          Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount()}
         </div>
         <div className="flex items-center gap-x-2 rtl:[&>button>svg]:-scale-100">

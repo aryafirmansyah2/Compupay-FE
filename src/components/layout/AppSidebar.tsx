@@ -1,5 +1,5 @@
-'use client';
-import { User2, ChevronUp } from 'lucide-react';
+"use client";
+import { User2, ChevronUp } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,19 +13,22 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-} from '@/components/ui/sidebar';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useTheme } from 'next-themes';
-import { useSidebar } from '@/components/ui/sidebar';
+} from "@/components/ui/sidebar";
+import Link from "next/link";
+import Image from "next/image";
+import { useTheme } from "next-themes";
+import { useSidebar } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { routeGroups } from '@/config/routes';
-import { usePathname } from 'next/navigation';
+} from "@/components/ui/dropdown-menu";
+import { routeGroups } from "@/config/routes";
+import { usePathname } from "next/navigation";
+import Cookies from "js-cookie";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import request from "@/utils/request";
 
 const AppSidebar = () => {
   const pathname = usePathname();
@@ -34,25 +37,80 @@ const AppSidebar = () => {
   const { state } = useSidebar(); // 'expanded' | 'collapsed'
   // Tentukan tema aktif (system, light, dark)
   let activeTheme = theme;
-  if (theme === 'system') {
-    if (typeof window !== 'undefined') {
-      activeTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light';
+  if (theme === "system") {
+    if (typeof window !== "undefined") {
+      activeTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
     } else {
-      activeTheme = 'light'; // fallback default
+      activeTheme = "light"; // fallback default
     }
   }
   // Pilih logo sesuai state dan tema
-  let logoSrc = '';
-  if (state === 'collapsed') {
-    logoSrc = '/assets/logo/logo-v2.png';
+  let logoSrc = "";
+  if (state === "collapsed") {
+    logoSrc = "/assets/logo/logo-v2.png";
   } else {
     logoSrc =
-      activeTheme === 'dark'
-        ? '/assets/logo/logo-v2.png'
-        : '/assets/logo/logo-v2.png';
+      activeTheme === "dark"
+        ? "/assets/logo/logo-v2.png"
+        : "/assets/logo/logo-v2.png";
   }
+
+  const userRole = Cookies.get("role");
+
+  // 2. Filter Menu Berdasarkan Role
+  const filteredNavMain = useMemo(() => {
+    return routeGroups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item: any) => {
+          // Jika item tidak punya batasan role, tampilkan
+          if (!item.roles) return true;
+          // Tampilkan jika role user ada di dalam daftar roles menu
+          return item.roles.includes(userRole);
+        }),
+      }))
+      .filter((group) => group.items.length > 0); // Sembunyikan grup jika kosong
+  }, [userRole]);
+
+  // 3. Update Handle Logout
+  const handleLogout = () => {
+    Cookies.remove("token", { path: "/" });
+    Cookies.remove("refresh_token", { path: "/" });
+    Cookies.remove("role", { path: "/" }); // Pastikan role juga dihapus
+
+    window.location.href = "/login";
+  };
+
+  const [isLoading, setIsLoading] = useState<boolean>();
+  const [error, setError] = useState<any>();
+  const [data, setData] = useState<any>();
+
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await request.get(`/auth/me`);
+      setData(res.data.data);
+    } catch (err: any) {
+      setError(err.message || "Error fetching data");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []); // Use search as dependency to refetch when the search value changes
+
+  // UseEffect to trigger fetchData on search change
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchData();
+    }, 500); // Adding debounce delay of 500ms to avoid multiple calls while typing
+
+    return () => clearTimeout(delayDebounceFn); // Cleanup debounce on search change
+  }, [fetchData]);
+
+  // console.log(data);
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="py-4">
@@ -63,8 +121,10 @@ const AppSidebar = () => {
                 <Image
                   src={logoSrc}
                   alt="logo"
-                  width={state === 'collapsed' ? 40 : 125}
-                  height={state === 'collapsed' ? 40 : 20}
+                  width={state === "collapsed" ? 40 : 125}
+                  height={state === "collapsed" ? 85 : 20}
+                  // height={80}
+                  // width={80}
                 />
               </Link>
             </SidebarMenuButton>
@@ -72,7 +132,7 @@ const AppSidebar = () => {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {routeGroups.map((item) => (
+        {filteredNavMain.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent className="space-y-1">
@@ -81,7 +141,7 @@ const AppSidebar = () => {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === item.url}
+                      isActive={pathname.startsWith(item.url)}
                       tooltip={item.title}
                     >
                       <Link href={item.url}>
@@ -89,7 +149,7 @@ const AppSidebar = () => {
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
-                    {item.title === 'Inbox' && (
+                    {item.title === "Inbox" && (
                       <SidebarMenuBadge>24</SidebarMenuBadge>
                     )}
                   </SidebarMenuItem>
@@ -105,13 +165,18 @@ const AppSidebar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
-                  <User2 /> John Doe <ChevronUp className="ml-auto" />
+                  <User2 /> {data?.full_name} <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Account</DropdownMenuItem>
-                <DropdownMenuItem>Setting</DropdownMenuItem>
-                <DropdownMenuItem>Sign out</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => (window.location.href = "/profile")}
+                >
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleLogout()}>
+                  Sign out
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
