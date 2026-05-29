@@ -35,7 +35,6 @@ import request from "@/utils/request";
 import toast from "react-hot-toast";
 
 import { columns } from "./_components/column-table-attendance";
-import DialogFormAttendance from "./_components/dialog-form-attendance";
 import DialogDetailAttendance from "./_components/dialog-detail-attendance";
 import DeleteToastConfirm from "@/components/custom/our-toast";
 
@@ -95,13 +94,6 @@ export default function AttendancePage() {
                 <Search />
               </InputGroupAddon>
             </InputGroup>
-
-            <DialogFormAttendance type="create" fetchData={fetchData}>
-              <Button variant="outline">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Attendance
-              </Button>
-            </DialogFormAttendance>
           </div>
         }
         size="fill"
