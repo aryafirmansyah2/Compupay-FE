@@ -201,7 +201,7 @@ export default function DialogFormPosition({
                       onChange={(newValue) => {
                         field.onChange(newValue);
                       }}
-                      placeholder="Select a payment method..."
+                      placeholder="Select a department..."
                     />
                   </FormControl>
 

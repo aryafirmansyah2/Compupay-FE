@@ -3,28 +3,47 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Eye, Trash } from "lucide-react";
 
-import { formatCurrency } from "@/utils/format-currency";
-import { formatDateOnly } from "@/utils/format-date";
-import type { Payroll } from "@/types/payrollTypes";
-
-import DialogFormPayroll from "./dialog-form-payroll";
 import DialogDetailPayroll from "./dialog-detail-payroll";
+import DialogUpdatePayrollStatus from "./dialog-update-payroll-status";
 
 type ColumnProps = {
   fetchData: () => void;
-  onDelete: (item: Payroll) => void;
-  canManage: boolean;
+  onDelete: (id: string, refNo: string) => void;
 };
 
-const getPayrollStatusBadgeClass = (status?: string) => {
+const formatCurrency = (value: number | string | null | undefined) => {
+  const numberValue = Number(value || 0);
+
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+  }).format(numberValue);
+};
+
+const formatDate = (value?: string | Date | null) => {
+  if (!value) return "-";
+
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+};
+
+const getStatusBadgeClass = (status?: string) => {
   if (status === "PAID") {
     return "bg-green-100 text-green-700 border border-green-200";
+  }
+
+  if (status === "CANCELED") {
+    return "bg-red-100 text-red-700 border border-red-200";
   }
 
   return "bg-yellow-100 text-yellow-700 border border-yellow-200";
 };
 
-export const columns = ({ fetchData, onDelete, canManage }: ColumnProps) => [
+export const columns = ({ fetchData, onDelete }: ColumnProps) => [
   {
     id: "select",
     header: ({ table }: any) => (
@@ -51,17 +70,17 @@ export const columns = ({ fetchData, onDelete, canManage }: ColumnProps) => [
     accessorKey: "ref_no",
     header: "Ref No",
     cell: ({ row }: any) => {
-      const data = row.original as Payroll;
+      const data = row.original;
 
-      return <span className="truncate font-medium">{data.ref_no}</span>;
+      return <span className="font-medium">{data.ref_no || "-"}</span>;
     },
   },
   {
     accessorKey: "employee",
     header: "Employee",
     cell: ({ row }: any) => {
-      const data = row.original as Payroll;
-      const employee = data.employee;
+      const data = row.original;
+      const employee = data.employee || data.users || data.user;
 
       return (
         <div className="grid text-sm leading-tight">
@@ -77,81 +96,65 @@ export const columns = ({ fetchData, onDelete, canManage }: ColumnProps) => [
     accessorKey: "date_from",
     header: "Date From",
     cell: ({ row }: any) => {
-      const data = row.original as Payroll;
+      const data = row.original;
 
-      return <span>{formatDateOnly(data.date_from)}</span>;
+      return <span>{formatDate(data.date_from)}</span>;
     },
   },
   {
     accessorKey: "date_to",
     header: "Date To",
     cell: ({ row }: any) => {
-      const data = row.original as Payroll;
+      const data = row.original;
 
-      return <span>{formatDateOnly(data.date_to)}</span>;
+      return <span>{formatDate(data.date_to)}</span>;
     },
   },
   {
     accessorKey: "salary",
     header: "Salary",
     cell: ({ row }: any) => {
-      const data = row.original as Payroll;
+      const data = row.original;
 
-      return (
-        <span className="truncate font-medium">
-          {formatCurrency(data.salary)}
-        </span>
-      );
+      return <span>{formatCurrency(data.salary)}</span>;
     },
   },
   {
     accessorKey: "allowance_amount",
     header: "Allowance",
     cell: ({ row }: any) => {
-      const data = row.original as Payroll;
+      const data = row.original;
 
-      return (
-        <span className="truncate font-medium">
-          {formatCurrency(data.allowance_amount)}
-        </span>
-      );
+      return <span>{formatCurrency(data.allowance_amount)}</span>;
     },
   },
   {
     accessorKey: "deductions",
     header: "Deduction",
     cell: ({ row }: any) => {
-      const data = row.original as Payroll;
+      const data = row.original;
 
-      return (
-        <span className="truncate font-medium">
-          {formatCurrency(data.deductions)}
-        </span>
-      );
+      return <span>{formatCurrency(data.deductions)}</span>;
     },
   },
   {
     accessorKey: "net",
-    header: "Net",
+    header: "Net Salary",
     cell: ({ row }: any) => {
-      const data = row.original as Payroll;
+      const data = row.original;
 
-      return (
-        <span className="truncate font-semibold">
-          {formatCurrency(data.net)}
-        </span>
-      );
+      return <span className="font-semibold">{formatCurrency(data.net)}</span>;
     },
   },
   {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }: any) => {
-      const data = row.original as Payroll;
+      const data = row.original;
 
       return (
-        <Badge className={getPayrollStatusBadgeClass(data.status)}>
-          {data.status}
+        <Badge className={getStatusBadgeClass(data.status)}>
+          {data.status || "-"}
         </Badge>
       );
     },
@@ -161,7 +164,8 @@ export const columns = ({ fetchData, onDelete, canManage }: ColumnProps) => [
     header: "Action",
     enableHiding: false,
     cell: ({ row }: any) => {
-      const data = row.original as Payroll;
+      const data = row.original;
+      const canUpdateStatus = data.status === "PENDING";
 
       return (
         <div className="flex gap-3">
@@ -171,36 +175,30 @@ export const columns = ({ fetchData, onDelete, canManage }: ColumnProps) => [
               variant="outline"
               className="hover:text-primary"
             >
-              <Eye className="w-4 h-4" />
+              <Eye className="h-4 w-4" />
             </Button>
           </DialogDetailPayroll>
 
-          {canManage && (
-            <>
-              <DialogFormPayroll
-                type="update"
-                fetchData={fetchData}
-                data={data}
-              >
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="hover:text-primary"
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
-              </DialogFormPayroll>
-
+          {canUpdateStatus && (
+            <DialogUpdatePayrollStatus data={data} fetchData={fetchData}>
               <Button
                 size="icon"
                 variant="outline"
                 className="hover:text-primary"
-                onClick={() => onDelete(data)}
               >
-                <Trash className="w-4 h-4" />
+                <Edit className="h-4 w-4" />
               </Button>
-            </>
+            </DialogUpdatePayrollStatus>
           )}
+
+          <Button
+            size="icon"
+            variant="outline"
+            className="hover:text-primary"
+            onClick={() => onDelete(data.id, data.ref_no)}
+          >
+            <Trash className="h-4 w-4" />
+          </Button>
         </div>
       );
     },

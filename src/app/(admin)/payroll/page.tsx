@@ -84,18 +84,18 @@ export default function PayrollPage() {
   }, [fetchData]);
 
   const handleDelete = useCallback(
-    (item: Payroll): void => {
+    (id: string, refNo: string): void => {
       toast(
         (t) => (
           <DeleteToastConfirm
             t={t}
             entityName="payroll"
-            itemName={item.ref_no}
+            itemName={refNo}
             onConfirm={async () => {
               const loading = toast.loading("Deleting payroll...");
 
               try {
-                await request.delete(`/payroll/${item.id}`);
+                await request.delete(`/payroll/${id}`);
                 toast.success("Payroll deleted successfully", { id: loading });
                 fetchData();
               } catch (err: any) {
@@ -123,7 +123,6 @@ export default function PayrollPage() {
     columns: columns({
       fetchData,
       onDelete: handleDelete,
-      canManage,
     }),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
