@@ -87,22 +87,49 @@ export default function AllowancePage() {
     tableAllowance.setPageIndex(0);
   }, [tabsValue]);
 
-  const handleDelete = (id: string, allowance: string): void => {
+  const handleDelete = (id: string, allowanceName: string): void => {
     toast(
       (t) => (
         <DeleteToastConfirm
           t={t}
-          itemName={allowance}
+          entityName={
+            tabsValue === "employeeAllowance"
+              ? "employee allowance"
+              : "allowance"
+          }
+          itemName={allowanceName}
           onConfirm={async () => {
-            await request.delete(`/allowances/${id}`, {});
-            fetchData();
+            const loading = toast.loading("Deleting data...");
+
+            try {
+              if (tabsValue === "employeeAllowance") {
+                await request.delete(`/employeeAllowance/${id}`);
+              } else {
+                await request.delete(`/allowances/${id}`);
+              }
+
+              toast.success("Data deleted successfully", {
+                id: loading,
+              });
+
+              fetchData();
+            } catch (err: any) {
+              toast.error(
+                err?.response?.data?.errors?.message ||
+                  err?.response?.data?.message ||
+                  "Failed to delete data",
+                {
+                  id: loading,
+                },
+              );
+            }
           }}
         />
       ),
       {
         duration: 8000,
         position: "top-center",
-      }
+      },
     );
   };
 
@@ -164,7 +191,7 @@ export default function AllowancePage() {
                             ? null
                             : flexRender(
                                 header.column.columnDef.header,
-                                header.getContext()
+                                header.getContext(),
                               )}
                         </TableHead>
                       );
@@ -183,7 +210,7 @@ export default function AllowancePage() {
                         <TableCell key={cell.id}>
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </TableCell>
                       ))}
@@ -223,7 +250,7 @@ export default function AllowancePage() {
                             ? null
                             : flexRender(
                                 header.column.columnDef.header,
-                                header.getContext()
+                                header.getContext(),
                               )}
                         </TableHead>
                       );
@@ -242,7 +269,7 @@ export default function AllowancePage() {
                         <TableCell key={cell.id}>
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </TableCell>
                       ))}

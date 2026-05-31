@@ -2,21 +2,49 @@ import React from "react";
 import { toast, Toast } from "react-hot-toast";
 
 interface DeleteToastConfirmProps {
-  t: Toast; // Tipe untuk instance toast
-  itemName: string; // Nama item yang akan ditampilkan
-  onConfirm?: () => void; // Callback saat tombol "Ya, saya yakin" ditekan
+  t: Toast;
+  itemName?: string;
+  title?: string;
+  description?: string;
+  entityName?: string;
+  confirmText?: string;
+  cancelText?: string;
+  isLoading?: boolean;
+  onConfirm?: () => void | Promise<void>;
+  onCancel?: () => void;
 }
 
 const DeleteToastConfirm: React.FC<DeleteToastConfirmProps> = ({
   t,
   itemName,
+  title = "Konfirmasi Hapus",
+  description,
+  entityName = "data",
+  confirmText = "Ya, hapus",
+  cancelText = "Tidak, batalkan",
+  isLoading = false,
   onConfirm,
+  onCancel,
 }) => {
+  const handleCancel = () => {
+    onCancel?.();
+    toast.dismiss(t.id);
+  };
+
+  const handleConfirm = async () => {
+    try {
+      await onConfirm?.();
+      toast.dismiss(t.id);
+    } catch {
+      // Error handling utama sebaiknya dilakukan di onConfirm pada page.
+      // Toast confirm tidak perlu menelan error secara diam-diam.
+    }
+  };
+
   return (
-    <div className="text-center">
-      {/* Ikon hapus */}
+    <div className="w-full max-w-sm text-center">
       <svg
-        className="text-gray-400 w-11 h-11 mb-3.5 mx-auto"
+        className="mx-auto mb-3.5 h-11 w-11 text-red-500"
         aria-hidden="true"
         fill="currentColor"
         viewBox="0 0 20 20"
@@ -28,28 +56,40 @@ const DeleteToastConfirm: React.FC<DeleteToastConfirmProps> = ({
         />
       </svg>
 
-      {/* Pesan konfirmasi */}
-      <p className="mb-4 text-gray-500">
-        Apakah Anda yakin ingin menghapus product dengan Nomor Surat :{" "}
-        <span className="font-semibold text-red-600">{itemName}</span>?
+      <h3 className="mb-2 text-sm font-semibold text-gray-900">{title}</h3>
+
+      <p className="mb-4 text-sm text-gray-500">
+        {description || (
+          <>
+            Apakah Anda yakin ingin menghapus {entityName}
+            {itemName ? (
+              <>
+                {" "}
+                <span className="font-semibold text-red-600">{itemName}</span>
+              </>
+            ) : null}
+            ?
+          </>
+        )}
       </p>
 
-      {/* Tombol aksi */}
-      <div className="flex justify-center items-center space-x-4">
+      <div className="flex items-center justify-center gap-3">
         <button
-          onClick={() => toast.dismiss(t.id)}
-          className="py-2 px-3 text-sm font-medium text-gray-500 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900"
+          type="button"
+          onClick={handleCancel}
+          disabled={isLoading}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Tidak, batalkan
+          {cancelText}
         </button>
+
         <button
-          onClick={() => {
-            onConfirm?.();
-            toast.dismiss(t.id); // Tutup toast setelah dikonfirmasi
-          }}
-          className="py-2 px-3 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300"
+          type="button"
+          onClick={handleConfirm}
+          disabled={isLoading}
+          className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-300 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Ya, saya yakin
+          {isLoading ? "Menghapus..." : confirmText}
         </button>
       </div>
     </div>

@@ -1,4 +1,5 @@
 "use client";
+
 import { User2, ChevronUp } from "lucide-react";
 import {
   Sidebar,
@@ -12,11 +13,9 @@ import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 import { useSidebar } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
@@ -25,91 +24,68 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { routeGroups } from "@/config/routes";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import request from "@/utils/request";
 
+type SidebarUser = {
+  full_name?: string;
+  email?: string;
+};
+
 const AppSidebar = () => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { state } = useSidebar();
 
-  const { theme } = useTheme();
-  const { state } = useSidebar(); // 'expanded' | 'collapsed'
-  // Tentukan tema aktif (system, light, dark)
-  let activeTheme = theme;
-  if (theme === "system") {
-    if (typeof window !== "undefined") {
-      activeTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-    } else {
-      activeTheme = "light"; // fallback default
-    }
-  }
-  // Pilih logo sesuai state dan tema
-  let logoSrc = "";
-  if (state === "collapsed") {
-    logoSrc = "/assets/logo/logo-v2.png";
-  } else {
-    logoSrc =
-      activeTheme === "dark"
-        ? "/assets/logo/logo-v2.png"
-        : "/assets/logo/logo-v2.png";
-  }
+  const [mounted, setMounted] = useState(false);
+  const [userRole, setUserRole] = useState<string | undefined>();
+  const [data, setData] = useState<SidebarUser | null>(null);
 
-  const userRole = Cookies.get("role");
+  const logoSrc = "/assets/logo/logo-v2.png";
 
-  // 2. Filter Menu Berdasarkan Role
   const filteredNavMain = useMemo(() => {
+    if (!userRole) return [];
+
     return routeGroups
       .map((group) => ({
         ...group,
         items: group.items.filter((item: any) => {
-          // Jika item tidak punya batasan role, tampilkan
           if (!item.roles) return true;
-          // Tampilkan jika role user ada di dalam daftar roles menu
           return item.roles.includes(userRole);
         }),
       }))
-      .filter((group) => group.items.length > 0); // Sembunyikan grup jika kosong
+      .filter((group) => group.items.length > 0);
   }, [userRole]);
 
-  // 3. Update Handle Logout
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await request.get("/auth/me");
+      setData(res.data.data || null);
+    } catch {
+      setData(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
+    setUserRole(Cookies.get("role"));
+    fetchData();
+  }, [fetchData]);
+
   const handleLogout = () => {
     Cookies.remove("token", { path: "/" });
     Cookies.remove("refresh_token", { path: "/" });
-    Cookies.remove("role", { path: "/" }); // Pastikan role juga dihapus
+    Cookies.remove("role", { path: "/" });
+    Cookies.remove("position", { path: "/" });
 
-    window.location.href = "/login";
+    router.push("/login");
   };
 
-  const [isLoading, setIsLoading] = useState<boolean>();
-  const [error, setError] = useState<any>();
-  const [data, setData] = useState<any>();
-
-  const fetchData = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const res = await request.get(`/auth/me`);
-      setData(res.data.data);
-    } catch (err: any) {
-      setError(err.message || "Error fetching data");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []); // Use search as dependency to refetch when the search value changes
-
-  // UseEffect to trigger fetchData on search change
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      fetchData();
-    }, 500); // Adding debounce delay of 500ms to avoid multiple calls while typing
-
-    return () => clearTimeout(delayDebounceFn); // Cleanup debounce on search change
-  }, [fetchData]);
-
-  // console.log(data);
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -122,23 +98,23 @@ const AppSidebar = () => {
                   src={logoSrc}
                   alt="logo"
                   width={state === "collapsed" ? 40 : 125}
-                  height={state === "collapsed" ? 85 : 20}
-                  // height={80}
-                  // width={80}
+                  height={state === "collapsed" ? 40 : 40}
+                  priority
                 />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+
       <SidebarContent>
-        {filteredNavMain.map((item) => (
-          <SidebarGroup key={item.title}>
-            <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
+        {filteredNavMain.map((group) => (
+          <SidebarGroup key={group.title}>
+            <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
             <SidebarGroupContent className="space-y-1">
-              {item.items.map((item) => (
+              {group.items.map((item) => (
                 <SidebarMenu key={item.title}>
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
                       isActive={pathname.startsWith(item.url)}
@@ -149,6 +125,7 @@ const AppSidebar = () => {
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
+
                     {item.title === "Inbox" && (
                       <SidebarMenuBadge>24</SidebarMenuBadge>
                     )}
@@ -159,22 +136,24 @@ const AppSidebar = () => {
           </SidebarGroup>
         ))}
       </SidebarContent>
+
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
-                  <User2 /> {data?.full_name} <ChevronUp className="ml-auto" />
+                  <User2 />
+                  <span>{data?.full_name || "Profile"}</span>
+                  <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
+
               <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() => (window.location.href = "/profile")}
-                >
+                <DropdownMenuItem onClick={() => router.push("/profile")}>
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleLogout()}>
+                <DropdownMenuItem onClick={handleLogout}>
                   Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>

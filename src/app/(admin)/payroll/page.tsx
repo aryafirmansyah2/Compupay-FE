@@ -89,21 +89,21 @@ export default function PayrollPage() {
         (t) => (
           <DeleteToastConfirm
             t={t}
+            entityName="payroll"
             itemName={item.ref_no}
             onConfirm={async () => {
               const loading = toast.loading("Deleting payroll...");
 
               try {
                 await request.delete(`/payroll/${item.id}`);
-
                 toast.success("Payroll deleted successfully", { id: loading });
                 fetchData();
-              } catch (err) {
+              } catch (err: any) {
                 toast.error(
-                  getApiErrorMessage(err, "Failed to delete payroll"),
-                  {
-                    id: loading,
-                  },
+                  err?.response?.data?.errors?.message ||
+                    err?.response?.data?.message ||
+                    "Failed to delete payroll",
+                  { id: loading },
                 );
               }
             }}

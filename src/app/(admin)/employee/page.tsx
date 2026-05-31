@@ -79,21 +79,21 @@ export default function EmployeePage() {
         (t) => (
           <DeleteToastConfirm
             t={t}
+            entityName="employee"
             itemName={item.full_name}
             onConfirm={async () => {
               const loading = toast.loading("Deleting employee...");
 
               try {
                 await request.delete(`/user/${item.id}`);
-
                 toast.success("Employee deleted successfully", { id: loading });
                 fetchData();
-              } catch (err) {
+              } catch (err: any) {
                 toast.error(
-                  getApiErrorMessage(err, "Failed to delete employee"),
-                  {
-                    id: loading,
-                  },
+                  err?.response?.data?.errors?.message ||
+                    err?.response?.data?.message ||
+                    "Failed to delete employee",
+                  { id: loading },
                 );
               }
             }}

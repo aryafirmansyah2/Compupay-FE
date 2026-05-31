@@ -1,16 +1,18 @@
 "use client";
+
 import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
-import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { cn } from "@/lib/utils";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -19,7 +21,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -27,29 +28,34 @@ import {
 } from "@/components/ui/form";
 import CurrencyInput from "@/components/ui/currency-input";
 import Combobox, { ComboboxGroup } from "@/components/ui/combobox";
-import { allowance } from "../_data/allowance";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { format, set } from "date-fns";
-import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import request from "@/utils/request";
 
 const formSchema = z.object({
   user_id: z.string().min(1, { message: "Employee is required" }),
   allowance_id: z.string().min(1, { message: "Allowance is required" }),
-  type: z.string().min(1, { message: "Type is required" }),
-  amount: z.number().min(1, { message: "Amount is required" }),
-  effective_date: z.date(),
+  type: z.enum(["MONTHLY", "SEMI_MONTHLY", "ONCE"]),
+  amount: z.coerce.number().min(1, { message: "Amount is required" }),
+  effective_date: z.date({
+    message: "Effective date is required",
+  }),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = {
+  user_id: string;
+  allowance_id: string;
+  type: "MONTHLY" | "SEMI_MONTHLY" | "ONCE";
+  amount: number;
+  effective_date: Date;
+};
 
-interface StepItemCardProps {
+interface DialogFormEmployeeAllowanceProps {
   type: "create" | "update";
   children: React.ReactNode;
   data?: any;
@@ -61,215 +67,268 @@ export default function DialogFormEmployeeAllowance({
   children,
   data,
   fetchData,
-}: StepItemCardProps) {
+}: DialogFormEmployeeAllowanceProps) {
   const [open, setOpen] = useState(false);
-  const [employeeData, setEmployeeData] = useState<any[]>([]);
-  const [allowanceData, setAllowanceData] = useState<any[]>([]);
+  const [employeeData, setEmployeeData] = useState<ComboboxGroup[]>([]);
+  const [allowanceData, setAllowanceData] = useState<
+    { value: string; label: string }[]
+  >([]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
-      user_id: type === "update" && data ? data.user_id : "",
-      allowance_id: type === "update" && data ? data.allowance_id : "",
-      type: type === "update" && data ? data.type : "monthly",
-      amount: type === "update" && data ? data.amount : 0,
-      effective_date:
-        type === "update" && data ? new Date(data.effective_date) : undefined,
+      user_id: "",
+      allowance_id: "",
+      type: "MONTHLY",
+      amount: 0,
+      effective_date: new Date(),
     },
   });
 
   const fetchOptions = useCallback(async () => {
     try {
-      const [deptRes, posRes] = await Promise.all([
-        request.get("/allowances"),
-        request.get("/user"),
+      const [allowanceRes, userRes] = await Promise.all([
+        request.get("/allowances", { get_all: true }),
+        request.get("/user", { get_all: true }),
       ]);
 
       setAllowanceData(
-        deptRes.data.data.map((d: any) => ({
-          value: String(d.id),
-          label: d.allowance,
-        }))
+        (allowanceRes.data.data || []).map((item: any) => ({
+          value: String(item.id),
+          label: item.allowance,
+        })),
       );
 
-      const grouped = posRes.data.data.reduce(
+      const grouped = (userRes.data.data || []).reduce(
         (acc: ComboboxGroup[], cur: any) => {
-          const group = acc.find((g) => g.heading === cur.department.name);
-          const item = { value: String(cur.id), label: cur.full_name };
+          const heading = cur.department?.name || "No Department";
+          const group = acc.find((g) => g.heading === heading);
 
-          if (group) group.items.push(item);
-          else acc.push({ heading: cur.department.name, items: [item] });
+          const item = {
+            value: String(cur.id),
+            label: cur.full_name,
+          };
+
+          if (group) {
+            group.items.push(item);
+          } else {
+            acc.push({
+              heading,
+              items: [item],
+            });
+          }
 
           return acc;
         },
-        []
+        [],
       );
 
       setEmployeeData(grouped);
     } catch {
-      toast.error("Failed to load options");
+      toast.error("Failed to load form options");
     }
   }, []);
 
   useEffect(() => {
-    if (open) fetchOptions();
-  }, [open, fetchOptions]);
+    if (!open) return;
 
-  const onSubmit = async (values: FormValues) => {
-    const loading = toast.loading("Saving...");
+    fetchOptions();
+
+    form.reset({
+      user_id: data?.user_id || "",
+      allowance_id: data?.allowance_id || "",
+      type: data?.type || "MONTHLY",
+      amount: Number(data?.amount || 0),
+      effective_date: data?.effective_date
+        ? new Date(data.effective_date)
+        : new Date(),
+    });
+  }, [open, data, form, fetchOptions]);
+
+  const getErrorMessage = (err: any) => {
+    return (
+      err?.response?.data?.errors?.message ||
+      err?.response?.data?.message ||
+      err?.message ||
+      "Submit failed"
+    );
+  };
+
+  const onSubmit: SubmitHandler<FormValues> = async (values) => {
+    const loading = toast.loading(
+      type === "create"
+        ? "Creating employee allowance..."
+        : "Updating employee allowance...",
+    );
 
     try {
-      const formData = {
+      const payload = {
         user_id: values.user_id,
         allowance_id: values.allowance_id,
         type: values.type,
-        amount: values.amount,
-        effective_date: values.effective_date,
+        amount: Number(values.amount),
+        effective_date: values.effective_date.toISOString(),
       };
 
       if (type === "create") {
-        await request.post("/employeeAllowance", formData, {
-          headers: { "Content-Type": "application/json" },
+        await request.post("/employeeAllowance", payload, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        toast.success("Employee allowance created successfully", {
+          id: loading,
         });
       } else {
-        await request.put(`/employeeAllowance/${data.id}`, formData, {
-          headers: { "Content-Type": "application/json" },
+        await request.put(`/employeeAllowance/${data.id}`, payload, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        toast.success("Employee allowance updated successfully", {
+          id: loading,
         });
       }
 
-      toast.success("User saved", { id: loading });
       setOpen(false);
       fetchData();
-      form.reset();
     } catch (err: any) {
-      toast.error(err?.response?.data?.errors?.message || "Submit failed", {
+      toast.error(getErrorMessage(err), {
         id: loading,
       });
     }
   };
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[625px]">
+
+      <DialogContent className="w-[95vw] sm:max-w-[760px] max-h-[90vh] overflow-y-auto">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit, () => {
+              toast.error("Please complete the required fields");
+            })}
+            className="space-y-6"
+          >
             <DialogHeader>
               <DialogTitle>
-                {type == "create"
-                  ? "Create employee allowance"
-                  : "Update employee allowance"}
+                {type === "create"
+                  ? "Create Employee Allowance"
+                  : "Update Employee Allowance"}
               </DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-6">
-                <FormField
-                  control={form.control}
-                  name="user_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Employee</FormLabel>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+              <FormField
+                control={form.control}
+                name="user_id"
+                render={({ field }) => (
+                  <FormItem className="min-w-0 space-y-2">
+                    <FormLabel className="block">Employee</FormLabel>
+                    <div className="w-full min-w-0">
                       <Combobox
                         data={employeeData}
                         value={field.value}
-                        onChange={(newValue) => {
-                          field.onChange(newValue);
-                        }}
+                        onChange={field.onChange}
                         placeholder="Select an employee..."
                       />
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="col-span-6">
-                <FormField
-                  control={form.control}
-                  name="allowance_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Allowance</FormLabel>
+              <FormField
+                control={form.control}
+                name="allowance_id"
+                render={({ field }) => (
+                  <FormItem className="min-w-0 space-y-2">
+                    <FormLabel className="block">Allowance</FormLabel>
+                    <div className="w-full min-w-0">
                       <Combobox
                         data={allowanceData}
                         value={field.value}
-                        onChange={(newValue) => {
-                          field.onChange(newValue);
-                        }}
-                        placeholder="Select a allowance..."
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-6">
-                <FormField
-                  control={form.control}
-                  name="amount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Amount</FormLabel>
-                      <CurrencyInput
-                        value={field.value}
                         onChange={field.onChange}
+                        placeholder="Select an allowance..."
                       />
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="col-span-6">
-                <FormField
-                  control={form.control}
-                  name="effective_date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Effective Date</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start"
-                          >
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem className="min-w-0 space-y-2">
+                    <FormLabel className="block">Amount</FormLabel>
+                    <div className="w-full min-w-0">
+                      <CurrencyInput
+                        value={Number(field.value || 0)}
+                        onChange={(value) => field.onChange(Number(value))}
+                      />
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="effective_date"
+                render={({ field }) => (
+                  <FormItem className="min-w-0 space-y-2">
+                    <FormLabel className="block">Effective Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <span className="truncate">
                             {field.value
-                              ? field.value.toDateString()
+                              ? format(field.value, "dd MMM yyyy")
                               : "Pick a date"}
-                            <CalendarIcon className="ml-auto" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent>
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </FormItem>
-                  )}
-                />
-              </div>
+                          </span>
+                          <CalendarIcon className="ml-auto h-4 w-4 shrink-0" />
+                        </Button>
+                      </PopoverTrigger>
+
+                      <PopoverContent align="start" className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={(date) => {
+                            if (date) field.onChange(date);
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
+
             <FormField
               control={form.control}
               name="type"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Type</FormLabel>
+                <FormItem className="space-y-3">
+                  <FormLabel className="block">Type</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
                       value={field.value}
-                      className="flex"
+                      className="grid grid-cols-1 sm:grid-cols-3 gap-3"
                     >
-                      <label className="border-input has-data-[state=checked]:border-primary/80 has-data-[state=checked]:border-2 has-focus-visible:border-ring has-focus-visible:ring-ring/50 relative flex flex-col items-center gap-3 rounded-md border px-2 py-3 text-center shadow-xs transition-[color,box-shadow] outline-none has-focus-visible:ring-[3px] has-data-disabled:cursor-not-allowed has-data-disabled:opacity-50">
+                      <label className="border-input has-data-[state=checked]:border-primary/80 has-data-[state=checked]:border-2 relative flex cursor-pointer items-center justify-center rounded-md border px-4 py-3 text-center shadow-xs transition outline-none">
                         <RadioGroupItem
-                          id="monthly"
+                          id="allowance-monthly"
                           value="MONTHLY"
                           className="sr-only after:absolute after:inset-0"
                         />
@@ -277,9 +336,10 @@ export default function DialogFormEmployeeAllowance({
                           Monthly
                         </p>
                       </label>
-                      <label className="border-input has-data-[state=checked]:border-primary/80 has-data-[state=checked]:border-2 has-focus-visible:border-ring has-focus-visible:ring-ring/50 relative flex flex-col items-center gap-3 rounded-md border px-2 py-3 text-center shadow-xs transition-[color,box-shadow] outline-none has-focus-visible:ring-[3px] has-data-disabled:cursor-not-allowed has-data-disabled:opacity-50">
+
+                      <label className="border-input has-data-[state=checked]:border-primary/80 has-data-[state=checked]:border-2 relative flex cursor-pointer items-center justify-center rounded-md border px-4 py-3 text-center shadow-xs transition outline-none">
                         <RadioGroupItem
-                          id="semi-monthly"
+                          id="allowance-semi-monthly"
                           value="SEMI_MONTHLY"
                           className="sr-only after:absolute after:inset-0"
                         />
@@ -287,9 +347,10 @@ export default function DialogFormEmployeeAllowance({
                           Semi Monthly
                         </p>
                       </label>
-                      <label className="border-input has-data-[state=checked]:border-primary/80 has-data-[state=checked]:border-2 has-focus-visible:border-ring has-focus-visible:ring-ring/50 relative flex flex-col items-center gap-3 rounded-md border px-2 py-3 text-center shadow-xs transition-[color,box-shadow] outline-none has-focus-visible:ring-[3px] has-data-disabled:cursor-not-allowed has-data-disabled:opacity-50">
+
+                      <label className="border-input has-data-[state=checked]:border-primary/80 has-data-[state=checked]:border-2 relative flex cursor-pointer items-center justify-center rounded-md border px-4 py-3 text-center shadow-xs transition outline-none">
                         <RadioGroupItem
-                          id="once"
+                          id="allowance-once"
                           value="ONCE"
                           className="sr-only after:absolute after:inset-0"
                         />
@@ -299,17 +360,20 @@ export default function DialogFormEmployeeAllowance({
                       </label>
                     </RadioGroup>
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <DialogFooter>
+
+            <DialogFooter className="gap-2 sm:gap-0">
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button type="button" variant="outline">
+                  Cancel
+                </Button>
               </DialogClose>
+
               <Button type="submit">
-                {type == "create" ? "Create" : "Update"}
+                {type === "create" ? "Create" : "Update"}
               </Button>
             </DialogFooter>
           </form>
