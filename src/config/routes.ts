@@ -101,7 +101,7 @@ export const routeGroups: TRouteGroup[] = [
         roles: ["SUPER_ADMIN", "ADMIN", "USER"],
       },
       {
-        title: "Surat Izin",
+        title: "Leave Request",
         url: "/leave-request",
         icon: FileText,
         roles: ["SUPER_ADMIN", "ADMIN"],
