@@ -17,7 +17,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import request from "@/utils/request";
 
-type PayrollStatus = "PAID" | "CANCELED";
+type PayrollStatus = "PAID" | "CANCELLED";
 
 interface DialogUpdatePayrollStatusProps {
   children: ReactNode;
@@ -84,7 +84,7 @@ export default function DialogUpdatePayrollStatus({
   const isPending = data?.status === "PENDING";
 
   const paidSelected = status === "PAID";
-  const canceledSelected = status === "CANCELED";
+  const canceledSelected = status === "CANCELLED";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -169,7 +169,7 @@ export default function DialogUpdatePayrollStatus({
                   ].join(" ")}
                 >
                   <RadioGroupItem
-                    value="CANCELED"
+                    value="CANCELLED"
                     className="sr-only after:absolute after:inset-0"
                   />
 
@@ -187,7 +187,7 @@ export default function DialogUpdatePayrollStatus({
                         canceledSelected ? "text-red-600" : "text-foreground",
                       ].join(" ")}
                     >
-                      Canceled
+                      Cancelled
                     </p>
                     <p
                       className={[
