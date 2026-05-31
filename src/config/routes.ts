@@ -24,6 +24,7 @@ import {
   CircleDollarSign,
   CalendarCheck2,
   FileText,
+  Trophy,
 } from "lucide-react";
 import Cookies from "js-cookie";
 
@@ -92,6 +93,12 @@ export const routeGroups: TRouteGroup[] = [
         url: "/attendance",
         icon: CalendarCheck2,
         roles: ["SUPER_ADMIN", "ADMIN"],
+      },
+      {
+        title: "Point Record",
+        url: "/point-record",
+        icon: Trophy,
+        roles: ["SUPER_ADMIN", "ADMIN", "USER"],
       },
       {
         title: "Surat Izin",

@@ -1,78 +1,95 @@
-import axios from "axios";
+import axios, { AxiosError, AxiosRequestHeaders } from "axios";
 import Cookies from "js-cookie";
 
-const request = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1`,
-  // baseURL: 'https://localhost:7023/api/',
-  timeout: 60000 * 5,
-  withCredentials: true,
-  headers: {
-    // "Content-Type": "application/json",
-    // "Access-Control-Allow-Origin": "*",
-    // "Access-Control-Allow-Headers": "*",
-    // "Access-Control-Allow-Credentials": "true",
-  },
+const baseURL = `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1`;
+
+const api = axios.create({
+  baseURL,
+  timeout: 30000,
 });
 
-const requestHandler = (request) => {
-  const token = Cookies.get("token");
-
-  if (token !== undefined) {
-    request.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return request;
-};
-
-const responseHandler = (response) => {
-  return response;
-};
-
-const expiredTokenHandler = () => {
-  // store.dispatch(getLoginData({}))
-  localStorage.clear();
+function expiredTokenHandler() {
   Cookies.remove("token");
-  window.location.href = "/login";
-  // return error;
-};
+  Cookies.remove("role");
+  Cookies.remove("position");
 
-const errorHandler = (error: any) => {
-  if (error.response && error.response.status === 401) {
-    expiredTokenHandler();
-  } else if (error.code === "ERR_NETWORK") {
-    window.history.pushState({}, "Redirect Network Error", "/login");
-    console.log(error);
-    if (error.response.status === 401) {
+  if (typeof window !== "undefined") {
+    window.location.href = "/login";
+  }
+}
+
+api.interceptors.request.use(
+  (config) => {
+    const token = Cookies.get("token");
+
+    if (token) {
+      config.headers = {
+        ...config.headers,
+        Authorization: `Bearer ${token}`,
+      } as AxiosRequestHeaders;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    if (error?.response?.status === 401) {
       expiredTokenHandler();
     }
-  }
-  throw error; // ✅ ini yang benar
-};
 
-request.interceptors.request.use(
-  (request) => requestHandler(request),
-  (error) => errorHandler(error)
+    return Promise.reject(error);
+  },
 );
 
-request.interceptors.response.use(
-  (response) => responseHandler(response),
-  (error) => errorHandler(error)
-);
+const request = {
+  get: (url: string, params?: any, headers = {}) => {
+    return api({
+      method: "get",
+      url,
+      params,
+      headers,
+    });
+  },
 
-// eslint-disable-next-line import/no-anonymous-default-export
-export default {
-  get: (url: string, params?: any, headers = {}) =>
-    request({ method: "get", url, params, headers }),
-  post: (url: string, data: any, headers?: any) =>
-    request({ method: "post", url, data, headers }),
-  put: (url: string, data: any, headers?: any) =>
-    request({ method: "put", url, data, headers }),
-  delete: (url: string, data: any) => request({ method: "delete", url, data }),
-  setToken: (token) => {
-    if (token) {
-      request.defaults.headers.common.Authorization = `Bearer ${token}`;
-    } else {
-      delete request.defaults.headers.common.Authorization;
-    }
+  post: (url: string, data?: any, config = {}) => {
+    return api({
+      method: "post",
+      url,
+      data,
+      ...config,
+    });
+  },
+
+  put: (url: string, data?: any, config = {}) => {
+    return api({
+      method: "put",
+      url,
+      data,
+      ...config,
+    });
+  },
+
+  patch: (url: string, data?: any, config = {}) => {
+    return api({
+      method: "patch",
+      url,
+      data,
+      ...config,
+    });
+  },
+
+  delete: (url: string, params?: any, headers = {}) => {
+    return api({
+      method: "delete",
+      url,
+      params,
+      headers,
+    });
   },
 };
+
+export default request;

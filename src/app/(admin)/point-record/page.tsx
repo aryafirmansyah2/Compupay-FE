@@ -12,10 +12,11 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { Search } from "lucide-react";
 import toast from "react-hot-toast";
+import { Search } from "lucide-react";
 
 import { OurCard } from "@/components/custom/our-card";
+import DeleteToastConfirm from "@/components/custom/our-toast";
 import { DataTablePagination } from "@/components/ui/data-table/data-table-pagination";
 import {
   InputGroup,
@@ -32,34 +33,76 @@ import {
 } from "@/components/ui/table";
 import request from "@/utils/request";
 import { getApiErrorMessage } from "@/utils/get-api-error-message";
-import type { Attendance } from "@/types/attendanceTypes";
-import { columns } from "./_components/column-table-attendance";
+import { canManageData, getCurrentRole } from "@/utils/role";
+import type { PointRecord } from "@/types/pointRecordTypes";
 
-export default function AttendancePage() {
-  const [data, setData] = useState<Attendance[]>([]);
+import { columns } from "./_components/column-table-point-record";
+
+export default function PointRecordPage() {
+  const [data, setData] = useState<PointRecord[]>([]);
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [role, setRole] = useState<string | undefined>();
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
+  useEffect(() => {
+    setRole(getCurrentRole());
+  }, []);
+
   const fetchData = useCallback(async () => {
     setIsLoading(true);
 
     try {
-      const res = await request.get("/attendance", {
+      const res = await request.get("/pointRecord", {
         search,
       });
 
       setData(res.data.data || []);
     } catch (err) {
-      toast.error(getApiErrorMessage(err, "Failed to fetch attendance"));
+      toast.error(getApiErrorMessage(err, "Failed to fetch point record"));
     } finally {
       setIsLoading(false);
     }
   }, [search]);
+
+  const onDelete = useCallback(
+    (item: PointRecord) => {
+      const employeeName = item.attendance?.users?.full_name || item.id;
+
+      toast(
+        (t) => (
+          <DeleteToastConfirm
+            t={t}
+            itemName={employeeName}
+            onConfirm={async () => {
+              const loading = toast.loading("Deleting point record...");
+
+              try {
+                await request.delete(`/pointRecord/${item.id}`);
+
+                toast.success("Point record deleted", { id: loading });
+                fetchData();
+              } catch (err) {
+                toast.error(
+                  getApiErrorMessage(err, "Failed to delete point record"),
+                  { id: loading },
+                );
+              }
+            }}
+          />
+        ),
+        {
+          duration: 8000,
+          position: "top-center",
+        },
+      );
+    },
+    [fetchData],
+  );
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -71,7 +114,11 @@ export default function AttendancePage() {
 
   const table = useReactTable({
     data,
-    columns: columns(),
+    columns: columns({
+      fetchData,
+      onDelete,
+      canManage: canManageData(role),
+    }),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -91,8 +138,8 @@ export default function AttendancePage() {
   return (
     <section className="grid gap-4 md:grid-cols-3 w-full">
       <OurCard
-        title="Attendance"
-        descTitle="Employee check-in and check-out records"
+        title="Point Record"
+        descTitle="Attendance point history from employee check-in records"
         action={
           <div className="flex gap-4">
             <InputGroup className="w-full md:w-80">
@@ -136,7 +183,7 @@ export default function AttendancePage() {
                     colSpan={table.getAllColumns().length}
                     className="h-24 text-center text-muted-foreground"
                   >
-                    Loading attendance...
+                    Loading point records...
                   </TableCell>
                 </TableRow>
               ) : table.getRowModel().rows?.length ? (

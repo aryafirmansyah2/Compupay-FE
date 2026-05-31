@@ -1,16 +1,8 @@
-export type LeaveRequestStatus = "PENDING" | "APPROVED" | "REJECT";
+import type { User } from "./userTypes";
 
-export type LeaveRequestType = "CUTI" | "SAKIT" | "IZIN";
+export type LeaveRequestType = "CUTI" | "SAKIT";
 
-export type LeaveRequestUserRole = "USER" | "ADMIN" | "SUPERADMIN";
-
-export type LeaveRequestUser = {
-  id: string;
-  employee_number: string;
-  full_name: string;
-  email: string;
-  role: LeaveRequestUserRole;
-};
+export type LeaveRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
 
 export type LeaveRequest = {
   id: string;
@@ -19,45 +11,9 @@ export type LeaveRequest = {
   startDate: string;
   endDate: string;
   reason: string;
-  attachment: string | null;
+  attachment?: string | null;
   status: LeaveRequestStatus;
-  created_at: string;
-  updated_at: string;
-  users: LeaveRequestUser;
-};
-
-export type LeaveRequestPagination = {
-  totalItems: number;
-  totalPages: number;
-  currentpage: number;
-  itemsPerPage: number;
-};
-
-export type LeaveRequestListResponse = {
-  code: number;
-  status: string;
-  message: string;
-  pagination: LeaveRequestPagination;
-  data: LeaveRequest[];
-  errors: unknown;
-};
-
-export type LeaveRequestDetailResponse = {
-  code: number;
-  status: string;
-  message: string;
-  data: LeaveRequest;
-  errors: unknown;
-};
-
-export type LeaveRequestQueryParams = {
-  page?: number;
-  limit?: number;
-  status?: LeaveRequestStatus | "";
-  search?: string;
-};
-
-export type UpdateLeaveRequestStatusPayload = {
-  id: string;
-  status: Exclude<LeaveRequestStatus, "PENDING">;
+  user?: User | null;
+  created_at?: string;
+  updated_at?: string;
 };

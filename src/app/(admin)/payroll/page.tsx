@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import Cookies from "js-cookie";
 import {
   ColumnFiltersState,
   flexRender,
@@ -34,125 +33,98 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import request from "@/utils/request";
+import { getApiErrorMessage } from "@/utils/get-api-error-message";
+
+import type { Payroll } from "@/types/payrollTypes";
 
 import DialogFormPayroll from "./_components/dialog-form-payroll";
 import { columns } from "./_components/column-table-payroll";
+import { canManageData, getCurrentRole } from "@/utils/role";
 
 export default function PayrollPage() {
-  const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<Payroll[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [role, setRole] = useState<string | undefined>();
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const role = Cookies.get("role");
-  const isUser = role === "USER";
+  const canManage = canManageData(role);
 
-  const buildPayrollUrl = useCallback(() => {
-    const currentRole = Cookies.get("role");
-    const userId = Cookies.get("user_id");
-
-    let url = "/payroll/?getAll=true";
-
-    if (search.trim()) {
-      url += `&search=${encodeURIComponent(search.trim())}`;
-    }
-
-    if (currentRole === "USER") {
-      if (!userId || userId === "undefined" || userId === "null") {
-        return null;
-      }
-
-      url += `&filter[user_id]=${encodeURIComponent(userId)}`;
-    }
-
-    return url;
-  }, [search]);
+  useEffect(() => {
+    setRole(getCurrentRole());
+  }, []);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
 
     try {
-      const url = buildPayrollUrl();
-
-      if (!url) {
-        setData([]);
-
-        toast.error("User ID tidak ditemukan. Silakan login ulang.", {
-          duration: 2000,
-          position: "top-right",
-        });
-
-        return;
-      }
-
-      const res = await request.get(url);
+      const res = await request.get("/payroll", {
+        search,
+        get_all: true,
+      });
 
       setData(res.data.data || []);
-    } catch (error: any) {
-      const message =
-        error?.response?.data?.message ||
-        error?.response?.data?.errors?.message ||
-        "Failed to fetch payroll";
-
-      toast.error(message, {
-        duration: 2000,
-        position: "top-right",
-      });
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, "Failed to fetch payroll"));
     } finally {
       setIsLoading(false);
     }
-  }, [buildPayrollUrl]);
+  }, [search]);
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
+    const timeout = setTimeout(() => {
       fetchData();
-    }, 500);
+    }, 400);
 
-    return () => clearTimeout(delayDebounceFn);
+    return () => clearTimeout(timeout);
   }, [fetchData]);
 
-  const handleDelete = (id: string, payrollName: string): void => {
-    toast(
-      (t) => (
-        <DeleteToastConfirm
-          t={t}
-          itemName={payrollName}
-          onConfirm={async () => {
-            try {
-              await request.delete(`/payroll/${id}`, {});
+  const handleDelete = useCallback(
+    (item: Payroll): void => {
+      toast(
+        (t) => (
+          <DeleteToastConfirm
+            t={t}
+            itemName={item.ref_no}
+            onConfirm={async () => {
+              const loading = toast.loading("Deleting payroll...");
 
-              toast.success("Payroll deleted successfully", {
-                duration: 2000,
-                position: "top-right",
-              });
+              try {
+                await request.delete(`/payroll/${item.id}`);
 
-              fetchData();
-            } catch (error: any) {
-              const message =
-                error?.response?.data?.message || "Failed to delete payroll";
-
-              toast.error(message, {
-                duration: 2000,
-                position: "top-right",
-              });
-            }
-          }}
-        />
-      ),
-      {
-        duration: 8000,
-        position: "top-center",
-      },
-    );
-  };
+                toast.success("Payroll deleted successfully", { id: loading });
+                fetchData();
+              } catch (err) {
+                toast.error(
+                  getApiErrorMessage(err, "Failed to delete payroll"),
+                  {
+                    id: loading,
+                  },
+                );
+              }
+            }}
+          />
+        ),
+        {
+          duration: 8000,
+          position: "top-center",
+        },
+      );
+    },
+    [fetchData],
+  );
 
   const table = useReactTable({
     data,
-    columns: columns(fetchData, handleDelete),
+    columns: columns({
+      fetchData,
+      onDelete: handleDelete,
+      canManage,
+    }),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -173,11 +145,12 @@ export default function PayrollPage() {
     <section className="grid w-full gap-4 md:grid-cols-3">
       <OurCard
         title="Payroll"
+        descTitle="Employee payroll records and salary payment status"
         action={
           <div className="flex gap-4">
-            <InputGroup className="w-full">
+            <InputGroup className="w-full md:w-80">
               <InputGroupInput
-                placeholder="Search..."
+                placeholder="Search payroll..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -186,7 +159,7 @@ export default function PayrollPage() {
               </InputGroupAddon>
             </InputGroup>
 
-            {!isUser && (
+            {canManage && (
               <DialogFormPayroll type="create" fetchData={fetchData}>
                 <Button variant="outline">
                   <Plus className="mr-2 h-4 w-4" />
@@ -222,8 +195,8 @@ export default function PayrollPage() {
               {isLoading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={columns(fetchData, handleDelete).length}
-                    className="h-24 text-center"
+                    colSpan={table.getAllColumns().length}
+                    className="h-24 text-center text-muted-foreground"
                   >
                     Loading payroll...
                   </TableCell>
@@ -233,6 +206,7 @@ export default function PayrollPage() {
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
+                    className="hover:bg-muted/40 transition-colors"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -247,8 +221,8 @@ export default function PayrollPage() {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={columns(fetchData, handleDelete).length}
-                    className="h-24 text-center"
+                    colSpan={table.getAllColumns().length}
+                    className="h-24 text-center text-muted-foreground"
                   >
                     No results.
                   </TableCell>

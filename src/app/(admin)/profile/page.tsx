@@ -1,42 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormField,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import Combobox, { ComboboxGroup } from "@/components/ui/combobox";
-import CurrencyInput from "@/components/ui/currency-input";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useFileUpload } from "@/hooks/use-file-upload";
-import request from "@/utils/request";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -44,252 +11,193 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { format } from "date-fns";
+import CurrencyInput from "@/components/ui/currency-input";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import request from "@/utils/request";
 
-/* ================== VALIDATION ================== */
+type ProfileUser = {
+  id: string;
+  employee_number: string;
+  full_name: string;
+  email: string;
+  role: string;
+  status: string;
+  join_date: string;
+  salary: number;
+  profile_uri?: string | null;
+  department?: {
+    id: string;
+    name: string;
+  } | null;
+  position?: {
+    id: string;
+    name: string;
+  } | null;
+};
 
-const MAX_FILE_SIZE = 5000000;
-const ACCEPTED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-];
+function formatDateOnly(value?: string | null) {
+  if (!value) return "";
 
-const formSchema = z.object({
-  employee_number: z.string().min(1),
-  full_name: z.string().min(1),
-  email: z.string().email(),
-  password: z.string().min(6).optional(),
-  department_id: z.string(),
-  position_id: z.string(),
-  salary: z.number(),
-  join_date: z.date(),
-  profile_uri: z.string().optional(), // STRING
-});
+  const date = new Date(value);
 
-type FormValues = z.infer<typeof formSchema>;
+  if (Number.isNaN(date.getTime())) return "";
 
-interface Props {
-  type: "create" | "update";
-  children: React.ReactNode;
-  data?: any;
-  fetchData: () => void;
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+}
+
+function getInitials(name?: string) {
+  if (!name) return "U";
+
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase();
 }
 
 export default function ProfilePage() {
-  const [open, setOpen] = useState(false);
-  const [departments, setDepartments] = useState<any[]>([]);
-  const [positions, setPositions] = useState<ComboboxGroup[]>([]);
+  const [mounted, setMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<ProfileUser | null>(null);
 
-  /* ===== FORM ===== */
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-  });
+  const imageBaseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
 
-  /* ===== FILE UPLOAD ===== */
-  const [{ files }, { openFileDialog, removeFile, getInputProps }] =
-    useFileUpload({
-      maxFiles: 1,
-      accept: "image/*",
-    });
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
 
-  const previewUrl = files[0]?.preview || null || "";
-  const fileName = files[0]?.file.name || null;
-
-  /* ===== FETCH OPTIONS ===== */
-  const fetchOptions = useCallback(async () => {
     try {
-      const [deptRes, posRes] = await Promise.all([
-        request.get("/department"),
-        request.get("/position"),
-      ]);
-
-      setDepartments(
-        deptRes.data.data.map((d: any) => ({
-          value: String(d.id),
-          label: d.name,
-        }))
+      const res = await request.get("/auth/me");
+      setData(res.data.data || null);
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.errors?.message ||
+          err?.response?.data?.message ||
+          "Failed to fetch profile",
       );
-
-      const grouped = posRes.data.data.reduce(
-        (acc: ComboboxGroup[], cur: any) => {
-          const group = acc.find((g) => g.heading === cur.department.name);
-          const item = { value: String(cur.id), label: cur.name };
-
-          if (group) group.items.push(item);
-          else acc.push({ heading: cur.department.name, items: [item] });
-
-          return acc;
-        },
-        []
-      );
-
-      setPositions(grouped);
-    } catch {
-      toast.error("Failed to load options");
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (open) fetchOptions();
-  }, [open, fetchOptions]);
-
-  /* ===== SUBMIT ===== */
-  const onSubmit = async (values: FormValues) => {
-    const loading = toast.loading("Saving...");
-
-    try {
-      const formData = new FormData();
-      formData.append("employee_number", values.employee_number);
-      formData.append("full_name", values.full_name);
-      formData.append("email", values.email);
-      formData.append("department_id", values.department_id);
-      formData.append("position_id", values.position_id);
-      formData.append("salary", String(values.salary));
-      formData.append("join_date", values.join_date.toISOString());
-      formData.append("status", "ACTIVE");
-
-      if (values.password) {
-        formData.append("password", values.password);
-      }
-
-      if (files[0]?.file instanceof File) {
-        formData.append("profile_uri", files[0].file);
-      }
-
-      await request.post("/user", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      toast.success("User saved", { id: loading });
-      setOpen(false);
-      form.reset();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.errors?.message || "Submit failed", {
-        id: loading,
-      });
-    }
-  };
-
-  const [isLoading, setIsLoading] = useState<boolean>();
-  const [error, setError] = useState<any>();
-  const [data, setData] = useState<any>();
-
-  const fetchData = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const res = await request.get(`/auth/me`);
-      setData(res.data.data);
-    } catch (err: any) {
-      setError(err.message || "Error fetching data");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []); // Use search as dependency to refetch when the search value changes
-
-  // UseEffect to trigger fetchData on search change
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      fetchData();
-    }, 500); // Adding debounce delay of 500ms to avoid multiple calls while typing
-
-    return () => clearTimeout(delayDebounceFn); // Cleanup debounce on search change
+    setMounted(true);
+    fetchData();
   }, [fetchData]);
 
-  console.log(data);
+  if (!mounted) {
+    return null;
+  }
+
+  const profileImageUrl = data?.profile_uri
+    ? `${imageBaseUrl}/public/${data.profile_uri}`
+    : "";
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Profile</CardTitle>
-        <CardDescription>Detail of data user profile</CardDescription>
+        <CardDescription>Detail of user profile data</CardDescription>
       </CardHeader>
+
       <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label>Profile Image</Label>
-          <div className="flex justify-between items-center gap-4 border p-4 rounded-md">
-            <div className="flex gap-4 items-center">
-              <Avatar className="h-12 w-12 rounded-lg">
-                <AvatarImage
-                  src={`http://localhost:3001/public${data?.profile_uri}`}
-                  className="object-cover"
-                />
-                <AvatarFallback>EP</AvatarFallback>
-              </Avatar>
-              <div className="text-sm">
-                <p className="font-medium">{fileName || "No file chosen"}</p>
-                <p className="text-xs text-muted-foreground">
-                  JPG, PNG, WebP up to 5MB
-                </p>
+        {isLoading ? (
+          <div className="h-40 flex items-center justify-center text-sm text-muted-foreground">
+            Loading profile...
+          </div>
+        ) : (
+          <>
+            <div className="space-y-2">
+              <Label>Profile Image</Label>
+
+              <div className="flex justify-between items-center gap-4 border p-4 rounded-md">
+                <div className="flex gap-4 items-center">
+                  <Avatar className="h-12 w-12 rounded-lg">
+                    {profileImageUrl ? (
+                      <AvatarImage
+                        src={profileImageUrl}
+                        className="object-cover"
+                        alt={data?.full_name || "Profile image"}
+                      />
+                    ) : null}
+
+                    <AvatarFallback>
+                      {getInitials(data?.full_name)}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  <div className="text-sm">
+                    <p className="font-medium">
+                      {data?.full_name || "No profile data"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {data?.email || "-"}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="space-y-2">
-          <Label>Employee Number</Label>
-          <Input
-            placeholder="EMP-001"
-            value={data?.employee_number || ""}
-            readOnly
-          />
-        </div>
+            <div className="space-y-2">
+              <Label>Employee Number</Label>
+              <Input value={data?.employee_number || ""} readOnly />
+            </div>
 
-        <div className="space-y-2">
-          <Label>Full Name</Label>
-          <Input placeholder="EMP-001" value={data?.full_name || ""} readOnly />
-        </div>
+            <div className="space-y-2">
+              <Label>Full Name</Label>
+              <Input value={data?.full_name || ""} readOnly />
+            </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Email Address</Label>
-            <Input placeholder="EMP-001" value={data?.email || ""} readOnly />
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Email Address</Label>
+                <Input value={data?.email || ""} readOnly />
+              </div>
 
-          <div className="space-y-2">
-            <Label>Password</Label>
-            <Input type="password" readOnly />
-          </div>
-        </div>
+              <div className="space-y-2">
+                <Label>Role</Label>
+                <Input value={data?.role || ""} readOnly />
+              </div>
+            </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Department</Label>
-            <Input
-              placeholder="EMP-001"
-              value={data?.department.name || ""}
-              readOnly
-            />
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Department</Label>
+                <Input value={data?.department?.name || ""} readOnly />
+              </div>
 
-          <div className="space-y-2">
-            <Label>Position</Label>
-            <Input
-              placeholder="EMP-001"
-              value={data?.position.name || ""}
-              readOnly
-            />
-          </div>
-        </div>
+              <div className="space-y-2">
+                <Label>Position</Label>
+                <Input value={data?.position?.name || ""} readOnly />
+              </div>
+            </div>
 
-        <div className="space-y-2">
-          <Label>Monthly Salary</Label>
-          <CurrencyInput
-            value={data?.salary || 0}
-            onChange={() => {}}
-            readOnly
-          />
-        </div>
+            <div className="space-y-2">
+              <Label>Monthly Salary</Label>
+              <CurrencyInput
+                value={Number(data?.salary || 0)}
+                onChange={() => {}}
+                readOnly
+              />
+            </div>
 
-        <div className="space-y-2">
-          <Label>Join Date</Label>
-          <Input
-            placeholder="EMP-001"
-            value={data?.join_date ? format(data?.join_date, "dd-MM-yyyy") : ""}
-            readOnly
-          />
-        </div>
+            <div className="space-y-2">
+              <Label>Join Date</Label>
+              <Input value={formatDateOnly(data?.join_date)} readOnly />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Input value={data?.status || ""} readOnly />
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
