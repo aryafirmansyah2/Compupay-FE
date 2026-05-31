@@ -199,7 +199,7 @@ export default function DialogFormPayroll({
                     data={user}
                     value={field.value}
                     onChange={field.onChange}
-                    placeholder="Select department"
+                    placeholder="Select Employee"
                   />
                   <FormMessage />
                 </FormItem>
