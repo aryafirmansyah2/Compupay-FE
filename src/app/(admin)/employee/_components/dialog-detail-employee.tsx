@@ -95,14 +95,14 @@ export default function DialogDetailEmployee({
               <AvatarFallback className="rounded-lg">CN</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">{"Arya Firmansyah"}</span>
+              <span className="truncate font-medium">{data.full_name}</span>
               <span className="text-muted-foreground truncate text-xs">
-                {"aryafirmansyah@gmail.com"}
+                {data.email}
               </span>
             </div>
           </div>
           <Badge className="px-2.5 py-1.5 rounded-full bg-primary/10 border-primary text-primary">
-            {"Active"}
+            {data.status}
           </Badge>
         </div>
         <div className="flex flex-col gap-6">
